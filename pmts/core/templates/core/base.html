@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %}PMTS - County Government of Trans-Nzoia{% endblock %}</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/favicon.png' %}" rel="icon">
+  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Global CSS -->
+  <link href="{% static 'css/global.css' %}" rel="stylesheet">
+
+  <!-- Page-Specific CSS -->
+  {% block css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container">
+      <!-- Logo -->
+      <a class="navbar-brand me-auto" href="{% url 'index' %}">
+        <img src="{{ header_settings.logo_static }}" alt="Logo" height="50">
+      </a>
+
+      <!-- Mobile Login Button -->
+      <a href="{{ header_settings.login_url }}" class="login-btn d-lg-none ms-auto me-3 py-1 px-2">
+        <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
+      </a>
+
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#navbarContent" aria-controls="navbarContent" 
+              aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list toggler-icon-open"></i>
+        <i class="bi bi-x toggler-icon-close d-none"></i>
+      </button>
+
+      <!-- Navbar Content -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item px-lg-2">
+            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'index' %}">HOME</a>
+          </li>
+          <li class="nav-item px-lg-2">
+            <a class="nav-link {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about' %}">PMTS</a>
+          </li>
+          
+          <!-- Public Dashboard Dropdown -->
+          <li class="nav-item dropdown px-lg-2">
+            <a class="nav-link dropdown-toggle {% if 'public_dashboard' in request.path %}active{% endif %}" 
+               href="#" id="publicDashboardDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+              PUBLIC DASHBOARD
+            </a>
+            <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="publicDashboardDropdown">
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'all_financial_years' %}active{% endif %}" 
+                     href="{% url 'all_financial_years' %}">All Financial Years</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'fy_2022_2023' %}active{% endif %}" 
+                     href="{% url 'fy_2022_2023' %}">FY 2022 - 2023</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'fy_2023_2024' %}active{% endif %}" 
+                     href="{% url 'fy_2023_2024' %}">FY 2023 - 2024</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'fy_2024_2025' %}active{% endif %}" 
+                     href="{% url 'fy_2024_2025' %}">FY 2024 - 2025</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'fy_2025_2026' %}active{% endif %}" 
+                     href="{% url 'fy_2025_2026' %}">FY 2025 - 2026</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'fy_2026_2027' %}active{% endif %}" 
+                     href="{% url 'fy_2026_2027' %}">FY 2026 - 2027</a></li>
+            </ul>
+          </li>
+          
+          <!-- County Dropdown -->
+          <li class="nav-item dropdown px-lg-2">
+            <a class="nav-link dropdown-toggle {% if 'county' in request.path %}active{% endif %}" 
+               href="#" id="countyDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+              COUNTY
+            </a>
+            <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="countyDropdown">
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'departments' %}active{% endif %}" 
+                     href="{% url 'departments' %}">Departments</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}" 
+                     href="{% url 'gallery' %}">Projects Gallery</a></li>
+              <li><a class="dropdown-item py-2 {% if request.resolver_match.url_name == 'resources' %}active{% endif %}" 
+                     href="{% url 'resources' %}">Resources</a></li>
+            </ul>
+          </li>
+          <li class="nav-item px-lg-2">
+            <a class="nav-link {% if request.path == '/faqs/' %}active{% endif %}" href="{% url 'faqs' %}">FAQs</a>
+          </li>
+          <li class="nav-item px-lg-2">
+            <a class="nav-link {% if request.path == '/contacts/' %}active{% endif %}" href="{% url 'contacts' %}">CONTACTS</a>
+          </li>
+        </ul>
+
+        <!-- Desktop Social Links & Login -->
+        <div class="d-flex align-items-center ms-lg-3">
+          <div class="header-social-links d-none d-lg-flex me-3">
+            <a href="{{ header_settings.twitter_url }}" class="twitter" target="_blank" rel="noopener"><i class="bi bi-twitter-x"></i></a>
+            <a href="{{ header_settings.facebook_url }}" class="facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+            <a href="{{ header_settings.instagram_url }}" class="instagram" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+          </div>
+          <a href="{{ header_settings.login_url }}" class="login-btn d-none d-lg-flex py-1 px-3">
+            <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer" class="footer">
+    <div class="footer-overlay">
+      <div class="container">
+        <div class="row gy-4">
+          <!-- Footer About Section -->
+          <div class="col-lg-3 col-md-6 col-12 footer-about">
+            <a href="{% url 'index' %}" class="logo d-flex align-items-center">
+              <span class="sitename">{{ footer_settings.cgtn_pmts_text }}</span>
+            </a>
+            <p>{{ footer_settings.about_text }}</p>
+            <h4>FOLLOW US</h4>
+            <div class="divider"></div>
+            <div class="social-links d-flex">
+              <a href="{{ footer_settings.twitter_url }}" class="twitter" target="_blank" rel="noopener"><i class="bi bi-twitter-x"></i></a>
+              <a href="{{ footer_settings.facebook_url }}" class="facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+              <a href="{{ footer_settings.instagram_url }}" class="instagram" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+            </div>
+          </div>
+
+          <!-- Footer Financial Years -->
+          <div class="col-lg-3 col-md-6 col-12 footer-links">
+            <h4>FINANCIAL YEARS</h4>
+            <div class="divider"></div>
+            <ul>
+              {% for link in footer_settings.financial_years %}
+                <li><a href="{{ link.url }}"><i class="bi bi-chevron-double-right"></i> {{ link.text }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Footer Quick Links -->
+          <div class="col-lg-2 col-md-6 col-12 footer-links">
+            <h4>QUICK LINKS</h4>
+            <div class="divider"></div>
+            <ul>
+              {% for link in footer_settings.quick_links %}
+                <li><a href="{{ link.url }}"><i class="bi bi-chevron-double-right"></i> {{ link.text }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Footer Contact Info -->
+          <div class="col-lg-2 col-md-6 col-12 footer-contact">
+            <h4>CONTACT INFO</h4>
+            <div class="divider"></div>
+            <ul>
+              <li><i class="bi bi-telephone-outbound"></i> {{ footer_settings.contact_phone }}</li>
+              <li><i class="bi bi-envelope-check"></i> {{ footer_settings.contact_email }}</li>
+              <li><i class="bi bi-person-rolodex"></i> {{ footer_settings.contact_address }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Copyright -->
+    <div class="footer-copyright text-center">
+      <p>© <span>COPYRIGHT {{ footer_settings.copyright_year }} |</span> <strong class="px-1 sitename">{{ footer_settings.copyright_text|upper }}</strong></p>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}" defer></script>
+  <script src="{% static 'vendor/imagesloaded/imagesloaded.pkgd.min.js' %}" defer></script>
+  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}" defer></script>
+  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}" defer></script>
+
+  <!-- Main JS File -->
+  <script src="{% static 'js/core.js' %}" defer></script>
+
+  <!-- Page-Specific JS -->
+  {% block js %}{% endblock %}
+</body>
+</html>

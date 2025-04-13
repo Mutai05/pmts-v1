@@ -1,0 +1,142 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}
+{{ project.name }} - Trans Nzoia PMTS
+{% endblock %}
+
+{% block css %}
+<link href="{% static 'css/single-project.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>{{ project.name }}</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'projects' %}">Projects</a></li>
+      <li class="breadcrumb-item active">{{ project.name }}</li>
+    </ol>
+  </nav>
+</div>
+
+<section class="section single-project">
+  <!-- Project Details -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-server me-2" style="font-size: 1.2rem; color: #4154f1;"></i>
+            <h5 class="mb-0">Details of: <span class="badge bg-primary ms-2">{{ project.name }}</span></h5>
+          </div>
+          <span class="badge bg-{% if project.status == 'completed' %}success{% elif project.status == 'stalled' %}danger{% else %}warning{% endif %}">
+            Status: {{ project.status|capfirst }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <a href="{% url 'projects' %}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-arrow-left"></i> Back to Projects
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="row g-4 mb-4">
+    <!-- Basic Info -->
+    <div class="col-md-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-info-circle me-2" style="color: #4154f1;"></i>Basic Info</h5>
+        <div class="border-top pt-2">
+          <p class="mb-2"><i class="bi bi-building me-2" style="color: #b76307;"></i><strong>Department:</strong> {{ project.department.name }}</p>
+          <p class="mb-2"><i class="bi bi-sitemap me-2" style="color: #b76307;"></i><strong>Implementing Agency:</strong> {{ project.implementing_agency|default:"N/A" }}</p>
+          <p class="mb-2"><i class="bi bi-chat-dots me-2" style="color: #b76307;"></i><strong>Remarks:</strong> {{ project.remarks|default:"None" }}</p>
+          <p class="mb-0"><i class="bi bi-tools me-2" style="color: #b76307;"></i><strong>Contractor:</strong> {{ project.project_contractor|default:"N/A" }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- Location Info -->
+    <div class="col-md-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-geo-alt me-2" style="color: #4154f1;"></i>Location Info</h5>
+        <div class="border-top pt-2">
+          <p class="mb-2"><i class="bi bi-compass me-2" style="color: #b76307;"></i><strong>Sub-County:</strong> {{ project.sub_county.name }}</p>
+          <p class="mb-2"><i class="bi bi-map me-2" style="color: #b76307;"></i><strong>Ward:</strong> {{ project.ward.name }}</p>
+          <p class="mb-2"><i class="bi bi-pin-map me-2" style="color: #b76307;"></i><strong>Location:</strong> {{ project.project_location|default:"N/A" }}</p>
+          <p class="mb-0"><i class="bi bi-geo me-2" style="color: #b76307;"></i><strong>Map Pin:</strong> 
+            {% if project.project_pin %}<a href="{{ project.project_pin }}" target="_blank">View Map</a>{% else %}N/A{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- Funding Info -->
+    <div class="col-md-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-currency-exchange me-2" style="color: #4154f1;"></i>Funding Info</h5>
+        <div class="border-top pt-2">
+          <p class="mb-2"><i class="bi bi-cash me-2" style="color: #b76307;"></i><strong>Budget:</strong> KES {{ project.budget_allocation|floatformat:2 }}</p>
+          <p class="mb-2"><i class="bi bi-calendar me-2" style="color: #b76307;"></i><strong>Financial Year:</strong> {{ project.financial_year|default:"N/A" }}</p>
+          <p class="mb-2"><i class="bi bi-bank me-2" style="color: #b76307;"></i><strong>Source of Funds:</strong> {{ project.source_of_funds|default:"N/A" }}</p>
+          <p class="mb-0"><i class="bi bi-percent me-2" style="color: #b76307;"></i><strong>Completion:</strong> {{ project.completion_percentage }}%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-file-text me-2" style="color: #4154f1;"></i>Project Description</h5>
+        <div class="border-top pt-2">
+          <p>{{ project.description|default:"No description available." }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photos -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-image me-2" style="color: #4154f1;"></i>Project Photos</h5>
+        <div class="border-top pt-2">
+          {% if project.project_photos %}
+          <img src="{{ project.project_photos.url }}" class="img-fluid rounded" alt="{{ project.name }} Photo" style="max-height: 300px;">
+          {% else %}
+          <p>No photos available.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <h5 class="mb-3"><i class="bi bi-chat-dots me-2" style="color: #4154f1;"></i>Give Feedback</h5>
+        <div class="border-top pt-2">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="feedback" class="form-label">Feedback:</label>
+              <textarea class="form-control" id="feedback" name="feedback" rows="4"></textarea>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Submit Feedback</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

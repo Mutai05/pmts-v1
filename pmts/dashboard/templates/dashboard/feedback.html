@@ -1,0 +1,66 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}
+Feedback - Trans Nzoia PMTS
+{% endblock %}
+
+{% block css %}
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>Feedback</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="bi bi-house-door"></i> Home</a></li>
+      <li class="breadcrumb-item active">Feedback</li>
+    </ol>
+  </nav>
+</div>
+
+<section class="section py-5">
+  <div class="row g-4">
+    <!-- Feedback Item 1 -->
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <div class="d-flex align-items-center">
+          <img src="{% static 'img/profile-img.jpg' %}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+          <div class="ms-3">
+            <h5 class="mb-1">Betty M</h5>
+            <p class="mb-1">Update on Kwanza Market Stalls?</p>
+            <p class="mb-0 text-muted" style="font-size: 0.9rem;">4 hrs. ago</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Feedback Item 2 -->
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <div class="d-flex align-items-center">
+          <img src="{% static 'img/profile-img.jpg' %}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+          <div class="ms-3">
+            <h5 class="mb-1">Hillary Theva</h5>
+            <p class="mb-1">Endebess Primary needs inspection</p>
+            <p class="mb-0 text-muted" style="font-size: 0.9rem;">6 hrs. ago</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Feedback Item 3 -->
+    <div class="col-12">
+      <div class="border bg-white p-3 shadow-sm">
+        <div class="d-flex align-items-center">
+          <img src="{% static 'img/profile-img.jpg' %}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+          <div class="ms-3">
+            <h5 class="mb-1">Eng Ian</h5>
+            <p class="mb-1">Cherangany Irrigation report ready</p>
+            <p class="mb-0 text-muted" style="font-size: 0.9rem;">8 hrs. ago</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

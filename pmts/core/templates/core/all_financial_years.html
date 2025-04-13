@@ -1,0 +1,554 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}PMTS - All Financial Years{% endblock %}
+{% block body_class %}financial-years-page{% endblock %}
+{% block css %}
+  <link href="{% static 'css/financial-years.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <!-- Breadcrumb Section -->
+  <section class="section-1">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="left-column d-flex align-items-center">
+        <a href="{% url 'index' %}" class="me-2"><i class="bi bi-house-door"></i></a>
+        <span>•</span>
+        <span class="ms-2">All Financial Years</span>
+      </div>
+      <div class="right-column">
+        <a href="{% url 'index' %}">Home</a> / All Financial Years
+      </div>
+    </div>
+  </section>
+
+  <!-- Page Title -->
+  <section class="section-2 text-center">
+    <div class="container">
+      <h1>ALL FINANCIAL YEARS</h1>
+      <div class="divider"></div>
+    </div>
+  </section>
+
+  <!-- Quick Stats Section -->
+  <section class="section-3 py-5">
+    <div class="container">
+      <div class="quick-stats-container border rounded shadow-sm">
+        <!-- Title -->
+        <div class="quick-stats-title text-light">
+          <h3 class="m-0 py-2">Quick Stats</h3>
+        </div>
+        <!-- Stats Content -->
+        <div class="quick-stats-content p-3">
+          <!-- Row 1 -->
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">All Projects</h4>
+                <p class="stat-number fw-bold">615</p>
+                <p class="stat-budget">Budget Ksh 2,866,450,019</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">Completed Projects</h4>
+                <p class="stat-number fw-bold">227</p>
+                <p class="stat-budget">Budget Ksh 743,429,427</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">Ongoing Projects</h4>
+                <p class="stat-number fw-bold">615</p>
+                <p class="stat-budget">Budget Ksh 2,866,450,019</p>
+              </div>
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">Not Started Projects</h4>
+                <p class="stat-number fw-bold">615</p>
+                <p class="stat-budget">Budget Ksh 2,866,450,019</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">Projects Under Procurement</h4>
+                <p class="stat-number fw-bold">615</p>
+                <p class="stat-budget">Budget Ksh 2,866,450,019</p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12 mb-4">
+              <div class="stat-card p-3 bg-light shadow-sm border">
+                <h4 class="stat-title mb-2">Stalled Projects</h4>
+                <p class="stat-number fw-bold">615</p>
+                <p class="stat-budget">Budget Ksh 2,866,450,019</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Per Department Section -->
+  <section class="section-4 py-5">
+    <div class="container">
+      <div class="projects-per-department-container border rounded shadow-sm">
+        <!-- Title -->
+        <div class="quick-stats-title text-light">
+          <h3 class="m-0 py-2">Projects Per Department</h3>
+        </div>
+        <!-- Export CSV and Print buttons -->
+        <div class="buttons p-3 d-flex justify-content-end">
+          <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-secondary" onclick="window.print()">Print</button>
+        </div>
+        <!-- Data Table -->
+        <div class="projects-per-department-content p-3">
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th class="completed">Completed</th>
+                  <th class="ongoing">Ongoing</th>
+                  <th class="not-started">Not Started</th>
+                  <th class="stalled">Stalled</th>
+                  <th class="under-procurement">Under Procurement</th>
+                  <th class="all-projects">All Projects</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Department of Trade, Industrialization, Tourism & Cooperative Development</td>
+                  <td class="completed">45</td>
+                  <td class="ongoing">78</td>
+                  <td class="not-started">2</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">25</td>
+                  <td class="all-projects">150</td>
+                </tr>
+                <tr>
+                  <td>Department of Agriculture, Irrigation, Livestock & Fisheries</td>
+                  <td class="completed">38</td>
+                  <td class="ongoing">31</td>
+                  <td class="not-started">1</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">4</td>
+                  <td class="all-projects">74</td>
+                </tr>
+                <tr>
+                  <td>Department of Finance & Economic Planning</td>
+                  <td class="completed">1</td>
+                  <td class="ongoing">0</td>
+                  <td class="not-started">0</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">1</td>
+                  <td class="all-projects">2</td>
+                </tr>
+                <tr>
+                  <td>Department of Education & Technical Training</td>
+                  <td class="completed">14</td>
+                  <td class="ongoing">44</td>
+                  <td class="not-started">2</td>
+                  <td class="stalled">2</td>
+                  <td class="under-procurement">1</td>
+                  <td class="all-projects">63</td>
+                </tr>
+                <tr>
+                  <td>Department of Health Services & Sanitation</td>
+                  <td class="completed">10</td>
+                  <td class="ongoing">28</td>
+                  <td class="not-started">0</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">5</td>
+                  <td class="all-projects">43</td>
+                </tr>
+                <tr>
+                  <td>Department of Public Works, Transport & Energy</td>
+                  <td class="completed">4</td>
+                  <td class="ongoing">2</td>
+                  <td class="not-started">0</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">0</td>
+                  <td class="all-projects">6</td>
+                </tr>
+                <tr>
+                  <td>Department of Lands, Housing, Physical Planning & Urban Development</td>
+                  <td class="completed">16</td>
+                  <td class="ongoing">27</td>
+                  <td class="not-started">2</td>
+                  <td class="stalled">0</td>
+                  <td class="under-procurement">10</td>
+                  <td class="all-projects">55</td>
+                </tr>
+                <tr>
+                  <td>Department of Water, Environment, Natural Resources & Climate Change</td>
+                  <td class="completed">45</td>
+                  <td class="ongoing">78</td>
+                  <td class="not-started">0</td>
+                  <td class="stalled">1</td>
+                  <td class="under-procurement">25</td>
+                  <td class="all-projects">149</td>
+                </tr>
+                <tr>
+                  <td>Department of Gender, Youth, Sports & Culture</td>
+                  <td class="completed">29</td>
+                  <td class="ongoing">21</td>
+                  <td class="not-started">0</td>
+                  <td class="stalled">4</td>
+                  <td class="under-procurement">4</td>
+                  <td class="all-projects">48</td>
+                </tr>
+                <tr>
+                  <td>Total</td>
+                  <td class="completed">227</td>
+                  <td class="ongoing">310</td>
+                  <td class="not-started">4</td>
+                  <td class="stalled">8</td>
+                  <td class="under-procurement">66</td>
+                  <td class="all-projects">615</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Per Sub-County Section -->
+  <section class="section-5 py-5">
+    <div class="container">
+      <div class="projects-per-sub-county-container border rounded shadow-sm">
+        <!-- Title -->
+        <div class="quick-stats-title text-light">
+          <h3 class="m-0 py-2">Projects Per Sub-County</h3>
+        </div>
+        <!-- Export CSV and Print buttons -->
+        <div class="buttons p-3 d-flex justify-content-end">
+          <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-secondary" onclick="window.print()">Print</button>
+        </div>
+        <!-- Data Table -->
+        <div class="projects-per-sub-county-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Sub-County</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kiminini</td>
+                <td class="number-of-projects">136</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+              <tr>
+                <td>Saboti</td>
+                <td class="number-of-projects">97</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+              <tr>
+                <td>Cherangany</td>
+                <td class="number-of-projects">112</td>
+                <td class="total-budgeted-amount">Ksh 342,998,217</td>
+              </tr>
+              <tr>
+                <td>Endebess</td>
+                <td class="number-of-projects">79</td>
+                <td class="total-budgeted-amount">Ksh 183,570,551</td>
+              </tr>
+              <tr>
+                <td>Kwanza</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 1,346,876,770</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">615</td>
+                <td class="total-budgeted-amount">Ksh 2,866,450,019</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Per Ward Section -->
+  <section class="section-6 py-5">
+    <div class="container">
+      <div class="projects-per-ward-container border rounded shadow-sm">
+        <!-- Title -->
+        <div class="quick-stats-title text-light">
+          <h3 class="m-0 py-2">Projects Per Ward</h3>
+        </div>
+
+        <!-- Cherangany Sub-County -->
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+          <h5 class="subtitle m-0">Cherangany Sub-County</h5>
+          <div class="buttons">
+            <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+        <div class="projects-per-ward-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Ward</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Motosiet</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Chepsiro-Kiptoror</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Sitatunga</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 42,998,217</td>
+              </tr>
+              <tr>
+                <td>Kaplamai</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Sinyereri</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Makutano</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Cherangany-Suwerwa</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">156</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Kwanza Sub-County -->
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+          <h5 class="subtitle m-0">Kwanza Sub-County</h5>
+          <div class="buttons">
+            <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+        <div class="projects-per-ward-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Ward</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kwanza</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Keiyo</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 42,998,217</td>
+              </tr>
+              <tr>
+                <td>Bidii</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Kapomboi</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">156</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Endebess Sub-County -->
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+          <h5 class="subtitle m-0">Endebess Sub-County</h5>
+          <div class="buttons">
+            <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+        <div class="projects-per-ward-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Ward</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Endebess</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Matumbei</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 42,998,217</td>
+              </tr>
+              <tr>
+                <td>Chepchoina</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">156</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Saboti Sub-County -->
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+          <h5 class="subtitle m-0">Saboti Sub-County</h5>
+          <div class="buttons">
+            <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+        <div class="projects-per-ward-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Ward</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kinyoro</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Matisi</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 42,998,217</td>
+              </tr>
+              <tr>
+                <td>Tuwan</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Saboti</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Machewa</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">156</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Kiminini Sub-County -->
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+          <h5 class="subtitle m-0">Kiminini Sub-County</h5>
+          <div class="buttons">
+            <button class="btn btn-primary me-2" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+        <div class="projects-per-ward-content p-3">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Ward</th>
+                <th class="number-of-projects">Number of Projects</th>
+                <th class="total-budgeted-amount">Total Budgeted Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kiminini</td>
+                <td class="number-of-projects">24</td>
+                <td class="total-budgeted-amount">Ksh 38,419,050</td>
+              </tr>
+              <tr>
+                <td>Waitaluk</td>
+                <td class="number-of-projects">75</td>
+                <td class="total-budgeted-amount">Ksh 42,998,217</td>
+              </tr>
+              <tr>
+                <td>Sirende</td>
+                <td class="number-of-projects">31</td>
+                <td class="total-budgeted-amount">Ksh 13,570,551</td>
+              </tr>
+              <tr>
+                <td>Hospital</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Sikhendu</td>
+                <td class="number-of-projects">27</td>
+                <td class="total-budgeted-amount">Ksh 21,720,616</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="number-of-projects">156</td>
+                <td class="total-budgeted-amount">Ksh 361,720,616</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'js/financial-years.js' %}"></script>
+{% endblock %}

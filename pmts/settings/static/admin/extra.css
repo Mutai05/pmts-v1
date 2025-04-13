@@ -1,0 +1,9 @@
+textarea.jsonform-field {
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
+}
+input[type="text"].jsonform-field {
+    width: 100%;
+    max-width: 600px;
+}

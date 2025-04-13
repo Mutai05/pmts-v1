@@ -1,0 +1,189 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}
+Departments - Trans Nzoia PMTS
+{% endblock %}
+
+{% block css %}
+<link href="{% static 'css/departments.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>Departments</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="bi bi-house-door"></i> Home</a></li>
+      <li class="breadcrumb-item active">Departments</li>
+    </ol>
+  </nav>
+</div>
+
+<!-- Departments Section -->
+<section class="section departments py-5">
+  <div class="row g-4">
+    <!-- Department of Trade, Industrialization, Tourism & Cooperative Development -->
+    <div class="col-sm-6 col-md-6 col-lg-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #FF9800;">
+            <i class="bi bi-cart-fill" style="font-size: 1.5rem;"></i>
+          </div>
+          <div class="ms-3">
+            <h5 class="mb-0">Trade & Tourism</h5>
+            <p class="mb-0 fs-3">150</p>
+          </div>
+        </div>
+        <div class="border-top pt-2">
+          <p class="mb-0" style="color: #FF9800; font-weight: 400;">Completed: 45 | Ongoing: 78</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department of Agriculture, Irrigation, Livestock & Fisheries -->
+    <div class="col-sm-6 col-md-6 col-lg-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #4CAF50;">
+            <i class="bi bi-tree-fill" style="font-size: 1.5rem;"></i>
+          </div>
+          <div class="ms-3">
+            <h5 class="mb-0">Agriculture & Livestock</h5>
+            <p class="mb-0 fs-3">74</p>
+          </div>
+        </div>
+        <div class="border-top pt-2">
+          <p class="mb-0" style="color: #4CAF50; font-weight: 400;">Completed: 38 | Ongoing: 31</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department of Finance & Economic Planning -->
+    <div class="col-sm-6 col-md-6 col-lg-4">
+      <div class="border bg-white p-3 h-100 shadow-sm">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #2196F3;">
+          <i class="bi bi-cash-stack" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Finance & Planning</h5>
+          <p class="mb-0 fs-3">2</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #2196F3; font-weight: 400;">Completed: 1 | Ongoing: 0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Education & Technical Training -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #9C27B0;">
+          <i class="bi bi-book-fill" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Education & Training</h5>
+          <p class="mb-0 fs-3">63</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #9C27B0; font-weight: 400;">Completed: 14 | Ongoing: 44</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Health Services & Sanitation -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #F44336;">
+          <i class="bi bi-heart-pulse-fill" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Health & Sanitation</h5>
+          <p class="mb-0 fs-3">43</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #F44336; font-weight: 400;">Completed: 10 | Ongoing: 28</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Public Works, Transport & Energy -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #FF5722;">
+          <i class="bi bi-tools" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Public Works & Transport</h5>
+          <p class="mb-0 fs-3">6</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #FF5722; font-weight: 400;">Completed: 4 | Ongoing: 2</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Lands, Housing, Physical Planning & Urban Development -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #795548;">
+          <i class="bi bi-house-fill" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Lands & Housing</h5>
+          <p class="mb-0 fs-3">55</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #795548; font-weight: 400;">Completed: 16 | Ongoing: 27</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Water, Environment, Natural Resources & Climate Change -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #03A9F4;">
+          <i class="bi bi-droplet-fill" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Water & Environment</h5>
+          <p class="mb-0 fs-3">149</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #03A9F4; font-weight: 400;">Completed: 45 | Ongoing: 78</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department of Gender, Youth, Sports & Culture -->
+  <div class="col-sm-6 col-md-6 col-lg-4">
+    <div class="border bg-white p-3 h-100 shadow-sm">
+      <div class="d-flex align-items-center mb-3">
+        <div class="icon text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #E91E63;">
+          <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
+        </div>
+        <div class="ms-3">
+          <h5 class="mb-0">Gender & Youth</h5>
+          <p class="mb-0 fs-3">48</p>
+        </div>
+      </div>
+      <div class="border-top pt-2">
+        <p class="mb-0" style="color: #E91E63; font-weight: 400;">Completed: 29 | Ongoing: 21</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}

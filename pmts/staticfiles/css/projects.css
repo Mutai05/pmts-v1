@@ -1,0 +1,123 @@
+/*--------------------------------------------------------------
+# Projects Section
+--------------------------------------------------------------*/
+.section.projects {
+  background: #f6f9ff;
+}
+
+.section.projects .card {
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(1, 41, 112, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.section.projects .card:hover {
+  box-shadow: 0 8px 25px rgba(1, 41, 112, 0.15);
+}
+
+.section.projects .card-header {
+  background: #4154f1;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px 10px 0 0;
+  padding: 12px 20px;
+}
+
+.section.projects .card-body {
+  padding: 20px;
+}
+
+.section.projects .table {
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.section.projects .table th {
+  background: #f6f9ff;
+  color: #012970;
+  font-weight: 600;
+  padding: 10px;
+  border: none;
+  font-size: 0.8rem;
+}
+
+.section.projects .table td {
+  background: #fff;
+  padding: 10px;
+  vertical-align: middle;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-size: 0.8rem;
+}
+
+.section.projects .table tr:hover td {
+  background: #f0f4ff;
+}
+
+.section.projects .badge {
+  font-size: 0.7rem;
+  padding: 5px 10px;
+  border-radius: 12px;
+}
+
+.section.projects .progress {
+  background: #e6e6e6;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 16px;
+}
+
+.section.projects .progress-bar {
+  font-size: 0.7rem;
+  transition: width 0.3s ease;
+}
+
+.section.projects .btn-sm {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+}
+
+.section.projects .alert-info {
+  background: #e6f0ff;
+  border: none;
+  color: #4154f1;
+  border-radius: 8px;
+  font-size: 0.7rem;
+}
+
+.section.projects .form-label {
+  font-size: 0.8rem;
+  color: #012970;
+}
+
+.section.projects .form-select-sm {
+  font-size: 0.7rem;
+  padding: 6px 12px;
+}
+
+@media (max-width: 767px) {
+  .section.projects .table-responsive {
+    overflow-x: auto;
+  }
+  .section.projects .table th, 
+  .section.projects .table td {
+    font-size: 0.7rem;
+    padding: 6px;
+  }
+  .section.projects .progress {
+    height: 12px;
+  }
+  .section.projects .btn-sm {
+    font-size: 0.6rem;
+    padding: 3px 6px;
+  }
+  .section.projects .form-label {
+    font-size: 0.7rem;
+  }
+  .section.projects .form-select-sm {
+    font-size: 0.6rem;
+    padding: 5px 10px;
+  }
+}

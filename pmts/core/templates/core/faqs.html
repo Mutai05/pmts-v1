@@ -1,0 +1,100 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}PMTS - FAQs{% endblock %}
+{% block body_class %}faqs-page{% endblock %}
+{% block css %}
+  <link href="{% static 'css/faqs.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <!-- Breadcrumb Section -->
+  <section class="section-1">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="left-column d-flex align-items-center">
+        <a href="{% url 'index' %}" class="me-2"><i class="bi bi-house-door"></i></a>
+        <span>•</span>
+        <span class="ms-2">FAQs</span>
+      </div>
+      <div class="right-column">
+        <a href="{% url 'index' %}">Home</a> / FAQs
+      </div>
+    </div>
+  </section>
+
+  <!-- Page Title -->
+  <section class="section-2 text-center">
+    <div class="container">
+      <h1>FREQUENTLY ASKED QUESTIONS</h1>
+      <div class="divider"></div>
+    </div>
+  </section>
+
+  <!-- FAQ Accordion Section -->
+  <section class="faq-section py-5">
+    <div class="container">
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item border mb-2" data-aos="fade-up" data-aos-delay="100">
+          <h2 class="accordion-header" id="faqOne">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <i class="bi bi-question-circle"></i> What is the Projects Monitoring and Tracking System (PMTS)?
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              The Projects Monitoring and Tracking System (PMTS) is a digital platform designed by the County Government of Trans-Nzoia to improve the management, monitoring, and evaluation of county projects. It provides real-time updates on project statuses, budgets, and timelines, fostering transparency and accountability in project implementation.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item border mb-2" data-aos="fade-up" data-aos-delay="200">
+          <h2 class="accordion-header" id="faqTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              <i class="bi bi-question-circle"></i> How does PMTS enhance transparency and accountability?
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              PMTS promotes transparency by making project data publicly accessible in real-time. Citizens and stakeholders can track progress, review budgets, and access reports, ensuring accountability among project implementers and fostering public trust.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item border mb-2" data-aos="fade-up" data-aos-delay="300">
+          <h2 class="accordion-header" id="faqThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              <i class="bi bi-question-circle"></i> What information is available on PMTS?
+            </button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              PMTS offers detailed information on all county projects, including descriptions, current statuses (e.g., completed, ongoing), timelines, budgets, progress reports, and supporting documents. It also lists involved stakeholders and their roles.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item border mb-2" data-aos="fade-up" data-aos-delay="400">
+          <h2 class="accordion-header" id="faqFour">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              <i class="bi bi-question-circle"></i> Can I provide feedback or report issues through PMTS?
+            </button>
+          </h2>
+          <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Yes, PMTS includes a feedback feature allowing users to submit comments or report issues directly through the platform. This helps the county address concerns promptly and improve system functionality.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item border mb-2" data-aos="fade-up" data-aos-delay="500">
+          <h2 class="accordion-header" id="faqFive">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+              <i class="bi bi-question-circle"></i> Who can access PMTS?
+            </button>
+          </h2>
+          <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="faqFive" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              PMTS is accessible to the public, county officials, and project stakeholders. The public dashboard is open to all, while certain administrative features are restricted to authorized personnel via login credentials.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

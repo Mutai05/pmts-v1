@@ -1,0 +1,80 @@
+### Python-specific ###
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+env/
+venv/
+__pypackages__/
+build/
+dist/
+eggs/
+.eggs/
+lib64/
+sdist/
+develop-eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.egg-info
+.installed.cfg
+*.pth
+pylint.d/
+.pyup.d/
+.mypy_cache/
+.dmypy_cache/
+.ruff_cache/
+.pytest_cache/
+_build/
+wheelhouse/
+htmlcov/
+.hypothesis/
+.pytest_cache/
+.gitattributes  # Prevent git from normalizing line endings in your virtual environment
+
+### Django-specific ###
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-*
+media/* # Consider if you want to track media files
+static/* # Consider if you want to track static files collected in production
+*.mo
+*.pot
+
+### OS Specific ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Editor and IDE Specific ###
+.idea/
+*.swp
+*.swo
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+### Deployment Specific ###
+*.env
+.env.*
+secrets.json
+config/
+
+### Other ###
+node_modules/
+yarn-error.log
+package-lock.json
+npm-debug.log*
+.history
+.ipynb_checkpoints/
+*.orig
+*.rej
+*.rerun
+*.log

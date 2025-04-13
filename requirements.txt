@@ -1,0 +1,9 @@
+asgiref==3.8.1
+crispy-bootstrap5==2025.4
+Django==5.2
+django-admin-tabs==0.0.1
+django-crispy-forms==2.3
+django-json-widget==2.0.1
+django-jsonform==2.23.2
+pillow==11.1.0
+sqlparse==0.5.3

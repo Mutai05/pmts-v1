@@ -1,0 +1,332 @@
+/*--------------------------------------------------------------
+# About Page
+--------------------------------------------------------------*/
+
+.section-3, .section-4, .section-5, .section-6, .section-7, .section-8, .section-9 {
+  background-color: var(--background-color);
+  overflow-x: hidden;
+}
+
+h2.text-center {
+  font-size: 1.4rem;
+}
+
+.section-divider {
+  width: 60px;
+  height: 2px;
+  background-color: var(--accent-color);
+  margin: 10px auto;
+}
+
+/* Section 3: Introduction */
+.section-3 img {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-3 h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin-bottom: 0;
+}
+
+.section-3 p {
+  font-size: 0.95rem;
+  color: var(--default-color);
+  line-height: 1.7;
+}
+
+.section-3 .btn-explore {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  background-color: #e67e22;
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.section-3 .btn-explore:hover {
+  background-color: #d35400;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Section 4: Mission, Vision, Core Values */
+.section-4 .mission-vision-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.section-4 .mission-vision-card:hover {
+  background-color: #fef8f0;
+  transform: translateY(-3px);
+}
+
+.section-4 h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--heading-color);
+}
+
+.section-4 p {
+  font-size: 0.9rem;
+  color: var(--default-color);
+  line-height: 1.6;
+}
+
+/* Section 5: Objectives */
+.section-5 .objective-item {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.section-5 .objective-item:hover {
+  background-color: #fef8f0;
+  transform: translateY(-3px);
+}
+
+.section-5 h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 5px;
+}
+
+.section-5 p {
+  font-size: 0.9rem;
+  color: var(--default-color);
+}
+
+/* Section 6: Key Features */
+.section-6 .feature-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.section-6 .feature-card:hover {
+  background-color: #fef8f0;
+  transform: translateY(-3px);
+}
+
+.section-6 img {
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: 6px;
+}
+
+.section-6 h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--heading-color);
+  margin: 10px 0 5px;
+}
+
+.section-6 p {
+  font-size: 0.9rem;
+  color: var(--default-color);
+}
+
+/* Section 7: Additional Features */
+.section-7 ul li {
+  font-size: 0.9rem;
+  color: var(--default-color);
+  line-height: 1.6;
+}
+
+.section-7 .video-wrapper {
+  position: relative;
+}
+
+.section-7 .video-wrapper img {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-7 .video-wrapper .play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.9);
+  transition: color 0.3s;
+}
+
+.section-7 .video-wrapper:hover .play-icon {
+  color: #e67e22;
+}
+
+.section-7 .btn-explore {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  background-color: #e67e22;
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.section-7 .btn-explore:hover {
+  background-color: #d35400;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Section 8: Team */
+.section-8 .team-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.section-8 .team-card:hover {
+  background-color: #fef8f0;
+  transform: translateY(-3px);
+}
+
+.section-8 img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.section-8 h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--heading-color);
+  margin: 10px 0 5px;
+}
+
+.section-8 p {
+  font-size: 0.85rem;
+  color: var(--default-color);
+}
+
+.section-8 .text-muted {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Section 9: Timeline */
+.section-9 .timeline-container {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.section-9 .timeline-item {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.section-9 .timeline-content {
+  background-color: #f9f9f9;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.section-9 .timeline-content:hover {
+  background-color: #fef8f0;
+  transform: translateY(-3px);
+}
+
+.section-9 h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 5px;
+}
+
+.section-9 p {
+  font-size: 0.85rem;
+  color: var(--default-color);
+}
+
+.section-9 .timeline-container::before {
+  content: '';
+  position: absolute;
+  width: 3px;
+  background-color: #e67e22;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.section-9 .timeline-item:nth-child(odd) .timeline-content {
+  margin-right: 55%;
+  margin-left: 20px;
+}
+
+.section-9 .timeline-item:nth-child(even) .timeline-content {
+  margin-left: 55%;
+  margin-right: 20px;
+}
+
+.section-9 .timeline-item::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #e67e22;
+  border-radius: 50%;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .section-3 img,
+  .section-7 .video-wrapper img {
+    width: 100%;
+    margin: 20px 0;
+  }
+  .section-6 .feature-card,
+  .section-7 .video-wrapper {
+    margin-bottom: 20px;
+  }
+  .section-9 .timeline-container::before {
+    left: 15px;
+  }
+  .section-9 .timeline-item:nth-child(odd) .timeline-content,
+  .section-9 .timeline-item:nth-child(even) .timeline-content {
+    margin-left: 40px;
+    margin-right: 15px;
+  }
+  .section-9 .timeline-item::after {
+    left: 15px;
+  }
+}
+
+@media (max-width: 767px) {
+  .section-3 h2, .section-4 h2, .section-5 h2, .section-6 h2,
+  .section-7 h2, .section-8 h2, .section-9 h2 {
+    font-size: 1.2rem;
+  }
+  .section-4 .mission-vision-card,
+  .section-5 .objective-item,
+  .section-6 .feature-card,
+  .section-8 .team-card {
+    margin-bottom: 20px;
+  }
+}

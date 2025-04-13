@@ -1,0 +1,150 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}
+Projects - Trans Nzoia PMTS
+{% endblock %}
+
+{% block css %}
+<link href="{% static 'css/projects.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="pagetitle">
+  <h1>Projects</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+      <li class="breadcrumb-item active">Projects</li>
+    </ol>
+  </nav>
+</div>
+
+<section class="section projects">
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      Filter Projects
+    </div>
+    <div class="card-body">
+      <form method="get" action="{% url 'projects' %}">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label for="department" class="form-label">Department</label>
+            <select name="department" id="department" class="form-select form-select-sm">
+              <option value="">All</option>
+              {% for dept in departments %}
+              <option value="{{ dept.id }}" {% if dept.id|stringformat:"s" == department %}selected{% endif %}>
+                {{ dept.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="sub_county" class="form-label">Sub-County</label>
+            <select name="sub_county" id="sub_county" class="form-select form-select-sm">
+              <option value="">All</option>
+              {% for sc in subcounties %}
+              <option value="{{ sc.id }}" {% if sc.id|stringformat:"s" == sub_county %}selected{% endif %}>
+                {{ sc.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="ward" class="form-label">Ward</label>
+            <select name="ward" id="ward" class="form-select form-select-sm">
+              <option value="">All</option>
+              {% for w in wards %}
+              <option value="{{ w.id }}" {% if w.id|stringformat:"s" == ward %}selected{% endif %}>
+                {{ w.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="status" class="form-label">Status</label>
+            <select name="status" id="status" class="form-select form-select-sm">
+              <option value="" {% if not status %}selected{% endif %}>All</option>
+              <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
+              <option value="ongoing" {% if status == "ongoing" %}selected{% endif %}>Ongoing</option>
+              <option value="stalled" {% if status == "stalled" %}selected{% endif %}>Stalled</option>
+            </select>
+          </div>
+          <div class="col-md-12 mt-3">
+            <button type="submit" class="btn btn-sm btn-primary">
+              <i class="bi bi-funnel"></i> Apply Filters
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Projects Table -->
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      All Projects
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Sub-County</th>
+              <th>Ward</th>
+              <th>Status</th>
+              <th>Budget (KES)</th>
+              <th>Completion</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in projects %}
+            <tr>
+              <td>{{ project.name }}</td>
+              <td>{{ project.department.name }}</td>
+              <td>{{ project.sub_county.name }}</td>
+              <td>{{ project.ward.name }}</td>
+              <td>
+                <span class="badge bg-{% if project.completion_percentage == 100 %}success{% elif project.completion_percentage > 50 %}info{% else %}warning{% endif %}">
+                  {{ project.status|capfirst }}
+                </span>
+              </td>
+              <td>{{ project.budget_allocation|floatformat:2 }}</td>
+              <td>
+                <div class="progress" style="height: 16px;">
+                  <div class="progress-bar bg-{% if project.completion_percentage == 100 %}success{% elif project.completion_percentage > 50 %}info{% else %}warning{% endif %}" 
+                       role="progressbar" 
+                       style="width: {{ project.completion_percentage }}%;" 
+                       aria-valuenow="{{ project.completion_percentage }}" 
+                       aria-valuemin="0" 
+                       aria-valuemax="100">
+                    {{ project.completion_percentage }}%
+                  </div>
+                </div>
+              </td>
+              <td>
+                <a href="{% url 'single_project' project.id %}" class="btn btn-sm btn-primary">
+                  <i class="bi bi-eye"></i> View Project
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center">
+                <div class="alert alert-info" role="alert">
+                  No projects found.
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

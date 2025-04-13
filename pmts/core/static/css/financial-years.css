@@ -1,0 +1,306 @@
+/*--------------------------------------------------------------
+# Financial Years
+--------------------------------------------------------------*/
+
+:root {
+    /* Ensure variables from global.css are available */
+  }
+  
+  /* Quick Stats Section Styles */
+  .quick-stats-container {
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light mode border */
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: var(--surface-color); /* Theme-aware background */
+      overflow: hidden;
+  }
+  
+  .dark-theme .quick-stats-container {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Dark mode border */
+  }
+  
+  .quick-stats-content {
+      padding: 40px 20px 20px !important; /* Override Bootstrap if needed */
+  }
+  
+  .quick-stats-title {
+      background-color: var(--accent-color); /* Use theme accent */
+      margin: 0;
+  }
+  
+  .quick-stats-title h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--contrast-color); /* White in light mode, adjustable in dark */
+      padding-left: 10px;
+  }
+  
+  /* Stat Card Styles */
+  .stat-card {
+      background-color: var(--background-color) !important; /* Theme-aware card background */
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light mode border */
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px 10px; /* Fixed typo: removed incomplete '!;' */
+      text-align: center;
+      transition: transform 0.2s ease;
+  }
+  
+  .dark-theme .stat-card {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Dark mode border */
+  }
+  
+  .stat-card:hover {
+      transform: translateY(-5px);
+  }
+  
+  .stat-card .stat-title {
+      font-weight: 500;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: var(--heading-color); /* Theme-aware text */
+  }
+  
+  .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--heading-color); /* Theme-aware */
+      margin-bottom: 5px;
+  }
+  
+  .stat-budget {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--default-color); /* Theme-aware */
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+      .quick-stats-content {
+          padding: 20px 20px 0 !important;
+      }
+      .stat-card {
+          padding: 15px 8px; /* Smaller padding on mobile */
+      }
+  }
+  
+  /*--------------------------------------------------------------
+  # Projects Per Department
+  --------------------------------------------------------------*/
+  
+  .projects-per-department-container {
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light mode */
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: var(--surface-color);
+  }
+  
+  .dark-theme .projects-per-department-container {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Dark mode */
+  }
+  
+  /* Table Header Styling */
+  .projects-per-department-content .table th {
+      font-weight: bold;
+      color: var(--heading-color) !important; /* Theme-aware */
+      font-size: 0.9rem;
+  }
+  
+  .projects-per-department-content .table td {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--default-color); /* Theme-aware */
+  }
+  
+  /* Specific column colors (consistent across themes) */
+  .projects-per-department-content .table .completed {
+      color: #3b891f; /* Green */
+  }
+  
+  .projects-per-department-content .table .ongoing {
+      color: #c84d0a; /* Orange */
+  }
+  
+  .projects-per-department-content .table .not-started {
+      color: #444; /* Gray */
+  }
+  
+  .projects-per-department-content .table .stalled {
+      color: #b76307; /* Accent-like */
+  }
+  
+  .projects-per-department-content .table .under-procurement {
+      color: #404ec4; /* Blue */
+  }
+  
+  .projects-per-department-content .table .all-projects {
+      color: #444; /* Gray */
+  }
+  
+  /* Bold styling for Total row */
+  .projects-per-department-content .table tr:last-child td {
+      font-weight: bold;
+      color: var(--heading-color); /* Theme-aware */
+  }
+  
+  /* Buttons Section */
+  .buttons button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 400;
+      transition: all 0.3s ease;
+  }
+  
+  /* Primary Button Style */
+  .buttons .btn-primary {
+      background-color: #157be9;
+      border: 1px solid #157be9;
+      color: #fff;
+  }
+  
+  .buttons .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+      color: #fff;
+  }
+  
+  /* Secondary Button Style */
+  .buttons .btn-secondary {
+      background-color: #6c757d;
+      border: 1px solid #6c757d;
+      color: #fff;
+  }
+  
+  .buttons .btn-secondary:hover {
+      background-color: #5a6268;
+      border-color: #5a6268;
+      color: #fff;
+  }
+  
+  /* Make the table responsive */
+  .table-responsive {
+      overflow-x: auto;
+  }
+  
+  @media (max-width: 767px) {
+      .projects-per-department-content .table th,
+      .projects-per-department-content .table td {
+          font-size: 0.8rem;
+      }
+  }
+  
+  /*--------------------------------------------------------------
+  # Projects Per Sub-County
+  --------------------------------------------------------------*/
+  
+  .projects-per-sub-county-container {
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light mode */
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: var(--surface-color);
+  }
+  
+  .dark-theme .projects-per-sub-county-container {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Dark mode */
+  }
+  
+  /* Table Header Styling */
+  .projects-per-sub-county-content .table th {
+      font-weight: bold;
+      color: var(--heading-color) !important; /* Theme-aware */
+      font-size: 0.9rem;
+  }
+  
+  .projects-per-sub-county-content .table td {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--default-color); /* Theme-aware */
+  }
+  
+  /* Specific column colors */
+  .projects-per-sub-county-content .table .number-of-projects {
+      color: var(--accent-color); /* Theme-aware accent */
+      text-align: center;
+  }
+  
+  .projects-per-sub-county-content .table .total-budgeted-amount {
+      color: var(--default-color); /* Theme-aware */
+      text-align: center;
+  }
+  
+  /* Bold styling for Total row */
+  .projects-per-sub-county-content .table tr:last-child td {
+      font-weight: bold;
+      color: var(--heading-color); /* Theme-aware */
+  }
+  
+  /*--------------------------------------------------------------
+  # Projects Per Ward
+  --------------------------------------------------------------*/
+  
+  .projects-per-ward-container {
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Light mode */
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: var(--surface-color);
+  }
+  
+  .dark-theme .projects-per-ward-container {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Dark mode */
+  }
+  
+  /* Subtitle styling */
+  .projects-per-ward-container .subtitle {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--heading-color); /* Theme-aware */
+  }
+  
+  /* Table Header Styling */
+  .projects-per-ward-content .table th {
+      font-weight: bold;
+      color: var(--heading-color) !important; /* Theme-aware */
+      font-size: 0.9rem;
+  }
+  
+  .projects-per-ward-content .table td {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--default-color); /* Theme-aware */
+  }
+  
+  /* Specific column colors */
+  .projects-per-ward-content .table .number-of-projects {
+      color: var(--accent-color); /* Theme-aware accent */
+      text-align: center;
+  }
+  
+  .projects-per-ward-content .table .total-budgeted-amount {
+      color: var(--default-color); /* Theme-aware */
+      text-align: center;
+  }
+  
+  /* Bold styling for Total row */
+  .projects-per-ward-content .table tr:last-child td {
+      font-weight: bold;
+      color: var(--heading-color); /* Theme-aware */
+  }
+  
+  /* Responsive Adjustments */
+  @ (max-width: 767px) {
+      .projects-per-sub-county-content .table th,
+      .projects-per-sub-county-content .table td,
+      .projects-per-ward-content .table th,
+      .projects-per-ward-content .table td {
+          font-size: 0.8rem;
+      }
+      .projects-per-ward-container .subtitle {
+          font-size: 0.9rem;
+      }
+      .buttons button {
+          font-size: 0.7rem;
+          padding: 5px 12px;
+      }
+  }
