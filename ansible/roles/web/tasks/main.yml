@@ -1,0 +1,83 @@
+- name: Ensure Nginx SSL directory exists
+  ansible.builtin.file:
+    path: "{{ nginx_ssl_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700" # Only root access
+
+- name: Copy SSL Certificate file
+  ansible.builtin.copy:
+    src: "{{ local_cert_file_to_copy }}"
+    dest: "{{ nginx_ssl_cert_file }}"
+    owner: root
+    group: root
+    mode: "0644" # Certificate file needs to be readable by Nginx process
+
+- name: Copy SSL Private Key file
+  ansible.builtin.copy:
+    src: "{{ local_key_file_to_copy }}"
+    dest: "{{ nginx_ssl_key_file}}"
+    owner: root
+    group: root
+    mode: "0600" # Private key MUST be readable only by root
+
+- name: Ensure Gunicorn group exists
+  ansible.builtin.group:
+    name: "{{ gunicorn_group }}"
+    state: present
+  become: yes
+
+# Add the Nginx user to the Gunicorn group
+- name: Add Nginx user to Gunicorn group for socket access
+  ansible.builtin.user:
+    name: "{{ nginx_user }}"
+    groups: "{{ gunicorn_group }}"
+    append: yes
+    state: present
+  become: yes
+
+- name: Ensure socket parent directory has group execute permission
+  ansible.builtin.file:
+    path: "{{ app_home }}"
+    state: directory
+    mode: "g+x"
+    owner: "{{ gunicorn_user }}"
+    group: "{{ gunicorn_group }}"
+  become: yes
+
+- name: Configure Nginx
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ app_name }}
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/{{ app_name }}
+    dest: /etc/nginx/sites-enabled/{{ app_name }}
+    state: link
+  become: yes
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: yes
+
+- name: Restart Nginx service
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  become: yes
+
+- name: Reload Nginx service
+  service:
+    name: nginx
+    state: reloaded
+    enabled: yes
+  become: yes

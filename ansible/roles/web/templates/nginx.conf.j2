@@ -1,0 +1,111 @@
+server {
+    listen 80;
+    server_name {{ django_allowed_hosts }};
+
+    access_log off;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+server {
+    listen 443 ssl http2;
+
+    server_name {{ django_allowed_hosts }};
+
+    ssl_certificate {{ nginx_ssl_cert_file }};
+    ssl_certificate_key {{ nginx_ssl_key_file }};
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_ciphers EECDH+AESGCM:EDH+AESGCM; # Modern cipher suite
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    ssl_session_tickets off; # Consider security implications if enabling
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always; # HSTS Header
+
+    access_log /var/log/nginx/{{ app_name }}-access.log;
+    error_log /var/log/nginx/{{ app_name }}-error.log warn;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Permissions-Policy "interest-cohort=()" always;
+
+    # --- Performance Settings ---
+    # Max size for file uploads (adjust as needed)
+    client_max_body_size 25M;
+
+    gzip on;
+    gzip_vary on; # Tells proxies to cache based on Accept-Encoding header
+    gzip_proxied any; # Compress for all proxied requests
+    gzip_comp_level 6; # Compression level (1-9)
+    gzip_min_length 256; # Don't compress very small files
+
+    gzip_types # Specify which content types to compress
+        application/atom+xml
+        application/javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rss+xml
+        application/vnd.geo+json
+        application/vnd.ms-fontobject
+        application/x-font-ttf
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/opentype
+        image/bmp
+        image/svg+xml
+        image/x-icon
+        text/cache-manifest
+        text/css
+        text/plain
+        text/vcard
+        text/vnd.rim.location.xloc
+        text/vtt
+        text/x-component
+        text/x-cross-domain-policy;
+
+    # --- Location Blocks ---
+
+    # Block access to hidden files and directories (like .git, .env)
+    location ~ /\. {
+        deny all;
+    }
+
+    # Serve static files from the specified directory
+    location /static/ {
+        alias {{ app_static_dir }}/;
+        expires 7d; # Cache for 7 days (adjust as needed)
+        add_header Cache-Control "public";
+    }
+
+    # Serve media files from the specified directory
+    location /media/ {
+        alias {{ app_media_dir }}/;
+        expires 7d; # Cache for 7 days (adjust as needed)
+        add_header Cache-Control "public";
+    }
+
+    # Optional: Quieten logs for common missing file requests
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://{{ gunicorn_bind }};
+
+        # Recommended proxy settings
+        proxy_redirect off;
+        proxy_buffering on; # Can improve performance by buffering responses from Gunicorn
+        proxy_buffer_size 16k;
+        proxy_busy_buffers_size 24k;
+        proxy_connect_timeout 60s; # Timeout for connecting to Gunicorn
+        proxy_send_timeout 60s;    # Timeout for sending request to Gunicorn
+        proxy_read_timeout 60s;    # Timeout for reading response from Gunicorn
+    }
+}

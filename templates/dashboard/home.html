@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}
+  Home - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+  <!-- Hero Section -->
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Section -->
+    <div class="mb-12">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Overall Project Status</h2>
+      <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+          <dt class="truncate text-sm font-medium text-gray-500">Total Projects</dt>
+          <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ total_projects }}</dd>
+          <p class="mt-2 text-sm text-gray-500">Projects managed through the system</p>
+        </div>
+
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+          <dt class="truncate text-sm font-medium text-gray-500">Completed Projects</dt>
+          <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">{{ completed_projects }}</dd>
+          <p class="mt-2 text-sm text-gray-500">Projects successfully completed</p>
+        </div>
+
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+          <dt class="truncate text-sm font-medium text-gray-500">Ongoing Projects</dt>
+          <dd class="mt-1 text-3xl font-semibold tracking-tight text-blue-600">{{ ongoing_projects }}</dd>
+          <p class="mt-2 text-sm text-gray-500">Projects currently in progress</p>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Current Financial Year Stats -->
+    <div class="mb-12 bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6">
+          <h2 class="text-lg font-medium text-gray-900">Current Financial Year Summary ({{ current_fy_stats.year }})</h2>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        <dl class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-3">
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Revenue Allocation</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">KES {{ current_fy_stats.allocation|intcomma }}</dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Expenditure</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">KES {{ current_fy_stats.expenditure|intcomma }}</dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Budget Absorption (Current FY)</dt>
+            <dd class="mt-1 text-2xl font-semibold tracking-tight text-primary">{{ current_fy_stats.absorption_rate|floatformat:1 }}%</dd>
+             <div class="mt-3">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-primary h-2.5 rounded-full" style="width: {{ current_fy_stats.absorption_rate }}%"></div>
+                </div>
+            </div>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Cumulative Term Stats -->
+     <div class="mb-12 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h2 class="text-lg font-medium text-gray-900">Cumulative Overview ({{ cumulative_term_stats.term }})</h2>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Completed Projects</dt>
+                    <dd class="mt-1 text-xl font-semibold text-green-600">{{ cumulative_term_stats.completed.count }}</dd>
+                    <dd class="mt-0 text-sm text-gray-700">Budget: KES {{ cumulative_term_stats.completed.budget|intcomma }}</dd>
+                </div>
+                 <div>
+                    <dt class="text-sm font-medium text-gray-500">Ongoing Projects</dt>
+                    <dd class="mt-1 text-xl font-semibold text-blue-600">{{ cumulative_term_stats.ongoing.count }}</dd>
+                    <dd class="mt-0 text-sm text-gray-700">Budget: KES {{ cumulative_term_stats.ongoing.budget|intcomma }}</dd>
+                </div>
+                 <div>
+                    <dt class="text-sm font-medium text-gray-500">Projects Not Started</dt>
+                    <dd class="mt-1 text-xl font-semibold text-gray-600">{{ cumulative_term_stats.not_started.count }}</dd>
+                    <dd class="mt-0 text-sm text-gray-700">Budget: KES {{ cumulative_term_stats.not_started.budget|intcomma }}</dd>
+                </div>
+                 <div>
+                    <dt class="text-sm font-medium text-gray-500">Tendering Stage</dt>
+                    <dd class="mt-1 text-xl font-semibold text-cyan-600">{{ cumulative_term_stats.under_procurement.count }}</dd>
+                    <dd class="mt-0 text-sm text-gray-700">Budget: KES {{ cumulative_term_stats.under_procurement.budget|intcomma }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Departments Section -->
+    <div class="mb-12">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Projects by Department</h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <div class="overflow-x-auto">
+            <div class="inline-block min-w-full py-2 align-middle">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Department</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Number of Projects</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  {% for department in departments %}
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ department.name }}</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ department.project_count }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="2" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No department data available</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="bg-white py-12 sm:py-16 mb-12 rounded-lg shadow">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:text-center">
+          <h2 class="text-base font-semibold leading-7 text-primary">System Features</h2>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Everything you need to track county projects</p>
+        </div>
+        <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+          <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+            <div class="flex flex-col">
+              <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.5m0 5.5a2.25 2.25 0 002.25-2.25m-2.25 2.25a2.25 2.25 0 01-2.25-2.25M12 12.75V7.25m0 5.5a2.25 2.25 0 002.25-2.25M12 7.25a2.25 2.25 0 012.25-2.25M12 7.25a2.25 2.25 0 00-2.25-2.25m2.25 4.5a2.25 2.25 0 01-2.25 2.25m0 0a2.25 2.25 0 01-2.25-2.25m0 0a2.25 2.25 0 012.25 2.25M6 18h.01M18 18h.01" />
+                </svg>Transparency
+              </dt>
+              <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600"><p class="flex-auto">Citizens can track projects in real-time, ensuring accountability in resource allocation.</p></dd>
+            </div>
+            <div class="flex flex-col">
+              <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.517l2.74-1.22m0 0l-5.94-2.281m5.94 2.28L21 18M2.25 18l.01-.01M2.25 18a.75.75 0 001.065.066l1.58-1.589a.75.75 0 011.066 0l4.289 4.29a.75.75 0 001.065-.066l1.58-1.589a.75.75 0 011.066 0l4.289 4.29a.75.75 0 001.065-.066l.352-.352a.75.75 0 00-.066-1.065l-4.29-4.289a.75.75 0 010-1.066l1.588-1.58a.75.75 0 00-.066-1.065l-4.29-4.289a.75.75 0 010-1.066l1.588-1.58a.75.75 0 00-.066-1.065l-1.588-1.58a.75.75 0 00-1.065.066l-4.289 4.29a.75.75 0 01-1.066 0L3.28 5.719a.75.75 0 00-1.065-.066l-.352.352a.75.75 0 00.066 1.065L4.29 9.281a.75.75 0 010 1.066L2.71 11.934a.75.75 0 00.066 1.065l1.588 1.58a.75.75 0 010 1.066l-4.289 4.29a.75.75 0 00-.066 1.065l.352.352z" />
+                </svg>Progress Tracking
+              </dt>
+              <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600"><p class="flex-auto">Monitor project milestones, budgets, and completion percentages with ease.</p></dd>
+            </div>
+            <div class="flex flex-col">
+              <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>Public Feedback
+              </dt>
+              <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600"><p class="flex-auto">Citizens can provide feedback on projects, ensuring community involvement.</p></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

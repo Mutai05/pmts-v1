@@ -1,0 +1,213 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}PMTS - About PMTS{% endblock %}
+{% block body_class %}about-page{% endblock %}
+{% block css %}
+  <link href="{% static 'css/about.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <!-- Breadcrumb Section -->
+  <section class="section-1">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="left-column d-flex align-items-center">
+        <a href="{% url 'index' %}" class="me-2"><i class="bi bi-house-door"></i></a>
+        <span>•</span>
+        <span class="ms-2">About PMTS</span>
+      </div>
+      <div class="right-column">
+        <a href="{% url 'index' %}">Home</a> / About PMTS
+      </div>
+    </div>
+  </section>
+
+  <!-- Page Title -->
+  <section class="section-2 text-center">
+    <div class="container">
+      <h1>ABOUT PMTS</h1>
+      <div class="section-divider"></div>
+    </div>
+  </section>
+
+  <!-- Introduction Section -->
+  <section class="section-3 py-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
+          <h2>{{ page_settings.intro_title|default:"What is PMTS?" }}</h2>
+          <div class="section-divider"></div>
+          <p class="mt-3">{{ page_settings.intro_description|default:"The Projects Monitoring and Tracking System (PMTS) is a platform developed by the County Government of Trans-Nzoia to oversee and manage development projects." }}</p>
+          <a href="{% url 'all_financial_years' %}" class="btn btn-explore mt-3">Explore Projects</a>
+        </div>
+        <div class="col-lg-6 text-center" data-aos="zoom-in" data-aos-delay="200">
+          <img src="{% static 'img/pmts-dashboard.png' %}" alt="PMTS Dashboard" class="img-fluid rounded">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission, Vision, and Core Values Section -->
+  <section class="section-4 py-5 light-background">
+    <div class="container">
+      <h2 class="text-center">Our Foundation</h2>
+      <div class="section-divider mx-auto"></div>
+      <div class="row g-4 mt-3">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="mission-vision-card p-4 rounded text-center">
+            <i class="bi bi-flag-fill mb-2" style="font-size: 2rem; color: #e67e22;"></i>
+            <h3 class="mb-2">Our Mission</h3>
+            <p>{{ page_settings.mission|default:"To deliver a transparent and efficient system for monitoring county projects." }}</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="mission-vision-card p-4 rounded text-center">
+            <i class="bi bi-eye-fill mb-2" style="font-size: 2rem; color:rgb(39, 143, 48);"></i>
+            <h3 class="mb-2">Our Vision</h3>
+            <p>{{ page_settings.vision|default:"To lead in project management innovation, fostering trust and participation." }}</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="mission-vision-card p-4 rounded text-center">
+            <i class="bi bi-heart-fill mb-2" style="font-size: 2rem; color:rgb(117, 28, 73);"></i>
+            <h3 class="mb-2">Core Values</h3>
+            <p>{{ page_settings.core_values|default:"Integrity, Innovation, and Inclusivity." }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Objectives Section -->
+  <section class="section-5 py-5">
+    <div class="container">
+      <h2 class="text-center">Our Objectives</h2>
+      <div class="section-divider mx-auto"></div>
+      <div class="row g-4 mt-3">
+        {% for obj in page_settings.objectives %}
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' %}">
+            <div class="objective-item p-4 rounded text-center">
+              <i class="bi {{ obj.icon|default:'bi-check-circle' }} mb-2" style="font-size: 2rem; color: #e67e22;"></i>
+              <h3>{{ obj.title|default:"Objective" }}</h3>
+              <p>{{ obj.description|default:"Description here." }}</p>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center">
+            <p>No objectives listed.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+    <!-- Key Features Section - Now Dynamic -->
+    <section class="section-6 py-5 light-background">
+      <div class="container">
+        <h2 class="text-center">Key Features</h2>
+        <div class="section-divider mx-auto"></div>
+        <div class="row g-4 mt-3">
+          {% for feature in page_settings.key_features %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'00' }}">
+              <div class="feature-card p-3 rounded text-center">  <!-- Reduced padding from p-4 to p-3 -->
+                <img src="{% static feature.image|default:'img/default-feature.png' %}" 
+                    alt="{{ feature.title }}" 
+                    class="img-fluid rounded mb-3" 
+                    style="max-height: 180px; width: auto;">  <!-- Added fixed height and auto width -->
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center">
+              <p>No key features listed.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  
+    <!-- Additional Features Section - Now Dynamic -->
+    <section class="section-7 py-5">
+      <div class="container">
+        <h2 class="text-center">Additional Features</h2>
+        <div class="section-divider mx-auto"></div>
+        <div class="row g-4 mt-3">
+          <div class="col-lg-6" data-aos="fade-left" data-aos-delay="100">
+            <ul class="list-unstyled">
+              {% for feature in page_settings.additional_features %}
+                <li class="d-flex align-items-start mb-2">
+                  <i class="bi bi-check-circle-fill me-2" style="font-size: 1rem; color: #e67e22;"></i>
+                  <span><strong>{{ feature.title }}:</strong> {{ feature.description }}</span>
+                </li>
+              {% empty %}
+                <li>No additional features listed.</li>
+              {% endfor %}
+            </ul>
+            <a href="{% url 'faqs' %}" class="btn btn-explore mt-3">Discover More</a>
+          </div>
+          <div class="col-lg-6 text-center" data-aos="fade-right" data-aos-delay="200">
+            <div class="video-wrapper">
+              <a href="#" class="glightbox">
+                <img src="{% static 'img/pmts-dashboard.png' %}" alt="PMTS Video" class="img-fluid rounded">
+                <i class="bi bi-play-circle-fill play-icon"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Team Section - Now Dynamic -->
+    <section class="section-8 py-5 light-background">
+      <div class="container">
+        <h2 class="text-center">Meet the Team</h2>
+        <div class="section-divider mx-auto"></div>
+        <div class="row g-4 mt-3">
+          {% for member in page_settings.team_members %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'00' }}">
+              <div class="team-card p-4 rounded text-center">
+                <img src="{% static member.image|default:'img/team.png' %}" 
+                     alt="{{ member.name }}" 
+                     class="img-fluid rounded-circle mb-2">
+                <h3>{{ member.name }}</h3>
+                <p class="text-muted small">{{ member.role }}</p>
+                <p class="small">{{ member.bio|default:"" }}</p>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center">
+              <p>No team members listed.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  
+    <!-- Timeline Section - Now Dynamic -->
+    <section class="section-9 py-5">
+      <div class="container">
+        <h2 class="text-center">PMTS Journey</h2>
+        <div class="section-divider mx-auto"></div>
+        <div class="timeline-container mt-4">
+          {% for item in page_settings.timeline_items %}
+            <div class="timeline-item" 
+                 data-aos="{% cycle 'fade-right' 'fade-left' %}" 
+                 data-aos-delay="{{ forloop.counter|add:'00' }}">
+              <div class="timeline-content p-4 rounded">
+                <h3>{{ item.year }}</h3>
+                <p>{{ item.description }}</p>
+              </div>
+            </div>
+          {% empty %}
+            <div class="timeline-item" data-aos="fade-right" data-aos-delay="100">
+              <div class="timeline-content p-4 rounded">
+                <h3>2021</h3>
+                <p>PMTS concept born to address gaps in project monitoring.</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+{% endblock %}

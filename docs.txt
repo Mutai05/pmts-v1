@@ -1,0 +1,233 @@
+﻿Trans-Nzoia County Projects Monitoring & Tracking System (PMTS)
+Comprehensive System Overview
+________________
+
+
+1. Project Data Requirements
+Every project entered into the system must include the following details:
+A. Basic Project Information
+* Project Name (e.g., "Kwanza Market Construction")
+* Project Slug (Auto-generated identifier based on name)
+* Project Description (Scope, objectives, beneficiaries)
+
+* Department (Select from county departments)
+
+* Sub-County & Ward (Location classification)
+
+* Project Status (Completed, Ongoing, Stalled, Not Started, Under Procurement)
+
+* Start Date & Expected End Date
+
+* Percentage Completion (0-100%, updated via progress reports)
+
+* Financial Year (e.g., "2023-2024")
+
+* Timestamps (Created Date, Last Updated Date)
+
+B. Financial Information
+   * Budget Allocation (KES)
+
+   * Expenditure (KES) (Updated periodically)
+
+   * Funding Source (County, National Government, Donors)
+
+C. Implementation Details
+      * Contractor Name (If applicable)
+
+      * Implementing Agency (County, NGO, Private Sector)
+
+      * Project Photos:
+          * General Photos (`ProjectPhoto`): Multiple images for overall documentation, with captions and an optional cover photo.
+          * Progress Photos (`ProjectProgressPhoto`): Images linked specifically to progress updates, with captions.
+
+      * Google Map Location (Geotagging via embedded link)
+
+D. Monitoring & Feedback
+         * Project Progress Updates (`ProjectProgress`): Records of progress including date, percentage completion, description, linked photos, and the staff member who made the update.
+         * Challenges Encountered (Delays, funding issues, etc., stored in `Project.challenges`)
+         * Public Feedback (`ProjectFeedback`): Citizen input via the portal, including:
+             * Submitter Details: Name, Phone (optional), Email (optional), Sub-County, Ward, National ID.
+             * Comment/Complaint Text.
+             * Rating: 5-star scale (Very Satisfied, Satisfied, Neutral, Dissatisfied, Extremely Dissatisfied).
+             * Inappropriate Content Flags: System/user flags for moderation.
+         * Staff Replies (`StaffReply`): Responses to public feedback provided by Departmental or Executive level users.
+
+________________
+
+
+2. County Departments
+Projects are categorized under the following departments:
+            1. Public Service Management & Governance
+
+            2. Water, Environment, Natural Resources & Climate Change
+
+            3. Lands, Housing, Physical Planning & Urban Development
+
+            4. Public Works, Roads, Transport Infrastructure & Energy
+
+            5. Health Services & Sanitation
+
+            6. Education & Technical Training
+
+            7. Finance & Economic Planning
+
+            8. Agriculture, Irrigation, Livestock, Fisheries & Cooperative Development
+
+            9. Trade & Industrialization
+
+            10. Gender, Youth, Sports, Culture & Tourism
+
+________________
+
+
+3. Sub-Counties & Wards
+Projects are further classified by Sub-County and Ward:
+
+
+Sub-County
+	 Wards
+	Kwanza
+	Kwanza, Keiyo, Bidii, Kapomboi
+	Endebess
+	Endebess, Matumbei, Chepchoina
+	Saboti
+	Kinyoro, Matisi, Tuwan, Saboti, Machewa
+	Kiminini
+	Kiminini, Waitaluk, Sirende, Hospital, Sikhendu, Nabiswa
+	Cherang'any
+	Motosiet, Sitatunga, Kaplamai, Makutano, Sinyereri, Cherang'any-Suwerwa, Chepsiro-Kiptoror
+	________________
+
+
+4. User Access Levels
+The system includes three main user roles:
+A. Executive Level (Governor, Deputy Governor, County Secretary)
+               * Access: Full visibility across all departments.
+
+               * Permissions:
+
+                  * View real-time dashboards.
+
+                  * Generate high-level reports.
+
+                  * Receive alerts on stalled or overdue projects.
+
+B. Departmental Level (CEC Members, Chief Officers, Directors)
+                     * Access: Projects within their department.
+
+                     * Permissions:
+
+                        * View real-time dashboards.
+
+                        * Generate high-level reports.
+
+                        * Receive alerts on stalled or overdue projects.
+
+C. Public Level (Citizens, Media, NGOs)
+                           * Access: Read-only Website project explorer.
+
+                           * Permissions:
+
+                              * Search and filter projects.
+
+                              * View project details (budget, location, status).
+
+                              * Submit feedback and complaints.
+
+________________
+
+
+5. Project Filtering Options
+Users can filter projects based on:
+A. General Filters (For All Users)
+                                 * Department (Select from 10 departments)
+
+                                 * Sub-County & Ward (Location-based search)
+
+                                 * Project Status (Completed, Ongoing, Stalled, etc.)
+
+                                 * Financial Year (2022-2023, 2023-2024, 2024-2025)
+
+B. Advanced Filters (For Executives & Staff)
+                                    * Budget Range (Min/Max allocation)
+
+                                    * Contractor/Implementing Agency
+
+                                    * % Completion (e.g., "Projects below 30% completion")
+
+                                    * Alerts (Overdue, stalled, underfunded projects)
+
+________________
+
+
+6. Dashboards & Insights
+A. Executive Dashboard (Governor & Leadership)
+                                       * Key Metrics:
+
+                                          * Total Projects (Completed/Ongoing/Stalled).
+
+                                          * Budget Absorption Rate (%).
+
+                                          * Departmental Expenditure vs. Allocation.
+
+                                             * Interactive Maps:
+
+                                                * Projects displayed by Sub-County/Ward.
+
+                                                   * Alerts & Notifications:
+
+                                                      * Delayed projects.
+
+                                                      * Budget overruns.
+
+B. Departmental Dashboard (For Staff)
+                                                         * Project Management:
+
+                                                            * Add new projects.
+
+                                                            * Update progress (completion percentage, upload photos).
+
+                                                               * Financial Tracking:
+
+                                                                  * Budget vs. Expenditure trends.
+
+                                                                     * Reporting:
+
+                                                                        * Auto-generated Excel/PDF reports.
+
+C. Public Dashboard (For Citizens)
+                                                                           * Project Explorer:
+
+                                                                              * Search by name, department, or location.
+
+                                                                              * View project timelines & photos.
+
+
+
+
+                                                                                 * Feedback System:
+
+                                                                                    * Rate projects (★☆☆☆☆).
+
+                                                                                    * Submit comments/complaints.
+
+________________
+
+
+7. System Workflow
+                                                                                       1. Department Staff → Log in → Add project details (photos, budget, location).
+
+                                                                                       2. System → Validates data → Updates dashboards in real-time.
+
+                                                                                       3. Executives → Monitor KPIs → Take corrective actions as needed.
+
+                                                                                       4. Public → Browse projects → Submit feedback → County responds.
+
+________________
+
+
+8. Key Benefits
+✅ Transparency – Citizens track projects in real time.
+✅ Accountability – Departments & contractors meet deadlines.
+✅ Efficiency – Automated reports reduce manual work.
+✅ Data-Driven Decisions – Leaders allocate resources wisely.

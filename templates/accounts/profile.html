@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold leading-tight text-gray-900 mb-8">User Profile</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">User Profile</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Personal details and information.</p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                <dl class="sm:divide-y sm:divide-gray-200">
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Full name</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ user.first_name }} {{ user.last_name }}</dd>
+                    </div>
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Email address</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ user.email }}</dd>
+                    </div>
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Role</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ user.role|title }}</dd>
+                    </div>
+                    {% if user.department %}
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Department</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ user.department.name }}</dd>
+                    </div>
+                    {% endif %}
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Joined</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ user.date_joined|date:"F d, Y" }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Update Profile</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your first name and last name.</p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                <!-- Messages specific to this form are handled by base.html now -->
+                <form class="space-y-6" method="POST">
+                    {% csrf_token %}
+                    <div>
+                        {{form.email.as_hidden}}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">First Name</label>
+                        <div class="mt-2">
+                            <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                   value="{{ form.first_name.value }}">
+                        </div>
+                        {% if form.first_name.errors %}
+                            <p class="mt-2 text-sm text-red-600" id="{{ form.first_name.id_for_label }}-error">
+                                {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Last Name</label>
+                        <div class="mt-2">
+                            <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                   value="{{ form.last_name.value }}">
+                        </div>
+                         {% if form.last_name.errors %}
+                            <p class="mt-2 text-sm text-red-600" id="{{ form.last_name.id_for_label }}-error">
+                                {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="inline-flex justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                            Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

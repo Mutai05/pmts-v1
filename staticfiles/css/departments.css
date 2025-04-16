@@ -1,0 +1,38 @@
+/*--------------------------------------------------------------
+# Departments Section
+--------------------------------------------------------------*/
+.section-3 {
+    background-color: var(--surface-color);
+  }
+  
+  .section-3 .border {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .section-3 .border:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .section-3 h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--heading-color);
+  }
+  
+  .section-3 p.fs-3 {
+    font-size: 1.4rem !important;
+    font-weight: 600 !important;
+    color: var(--default-color);
+  }
+  
+  .section-3 .border-top p {
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 991px) {
+    .section-3 .col-lg-4 {
+      margin-bottom: 20px;
+    }
+  }

@@ -1,0 +1,149 @@
+{% load static %}
+<!-- Navigation -->
+<nav x-data="{ open: false, userMenuOpen: false }" class="bg-white shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 justify-between">
+            <div class="flex">
+                <div class="flex flex-shrink-0 items-center">
+                     <!-- Logo Placeholder -->
+                     <a href="/" class="flex items-center gap-2">
+                        <img class="h-12 w-auto" src="{% static 'images/trans-nzoia-county-logo.png' %}" alt="County PMTS">
+                        {# Removed icon version #}
+                   </a>
+                 </div>
+                 <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+                     <a href="{% url 'dashboard:home' %}"
+                       class="inline-flex items-center border-b-2 {% if request.resolver_match.url_name == 'home' %}border-primary text-text-dark{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-1 pt-1 text-sm font-semibold uppercase tracking-wide">
+                         Home
+                     </a>
+                     <a href="{% url 'projects:project_list' %}"
+                       class="inline-flex items-center border-b-2 {% if request.resolver_match.url_name == 'project_list' %}border-primary text-text-dark{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-1 pt-1 text-sm font-semibold uppercase tracking-wide">
+                         Projects
+                     </a>
+                     <a href="{% url 'dashboard:public_dashboard' %}"
+                       class="inline-flex items-center border-b-2 {% if request.resolver_match.url_name == 'public_dashboard' %}border-primary text-text-dark{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-1 pt-1 text-sm font-semibold uppercase tracking-wide">
+                         Public Dashboard
+                     </a>
+                     {% if user.is_authenticated and user.role != 'public' %}
+                      {% if user.role == 'executive' %}
+                      <a href="{% url 'dashboard:executive_dashboard' %}"
+                        class="inline-flex items-center border-b-2 {% if request.resolver_match.url_name == 'executive_dashboard' %}border-primary text-text-dark{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-1 pt-1 text-sm font-semibold uppercase tracking-wide">
+                           Executive Dashboard
+                       </a>
+                       {% elif user.role == 'departmental' %}
+                       <a href="{% url 'dashboard:departmental_dashboard' %}"
+                         class="inline-flex items-center border-b-2 {% if request.resolver_match.url_name == 'departmental_dashboard' %}border-primary text-text-dark{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-1 pt-1 text-sm font-semibold uppercase tracking-wide">
+                            Department Dashboard
+                        </a>
+                       {% endif %}
+                     {% endif %}
+                 </div>
+            </div>
+            <div class="hidden md:block py-4">
+                <div class="ml-4 flex items-center md:ml-6">
+                    {% if user.is_authenticated %}
+                        <!-- Profile dropdown -->
+                        <div class="relative ml-3" x-data="{ userMenuOpen: false }">
+                            <div>
+                                <button @click="userMenuOpen = !userMenuOpen" type="button" class="relative flex max-w-xs items-center rounded-full bg-primary text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <span class="absolute -inset-1.5"></span>
+                                    <span class="sr-only">Open user menu</span>
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary">
+                                         <span class="text-sm font-medium leading-none text-white">{{ user.email|slice:":1"|upper }}</span>
+                                    </span>
+                                </button>
+                            </div>
+                            <div x-show="userMenuOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" @click.away="userMenuOpen = false" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                                <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-1">Admin</a>
+                                {% endif %}
+                                <form id="logout-form-desktop" method="post" action="{% url 'accounts:logout' %}" style="display: none;">{% csrf_token %}</form>
+                                <a href="#" onclick="document.getElementById('logout-form-desktop').submit(); return false;" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                         <a href="{% url 'accounts:login' %}" class="inline-flex items-center border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 px-1 pt-1 text-sm font-semibold uppercase tracking-wide">Login</a>
+                         <a href="{% url 'accounts:register' %}" class="ml-4 inline-flex items-center border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 px-1 pt-1 text-sm font-semibold uppercase tracking-wide">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="-mr-2 flex md:hidden">
+                <!-- Mobile menu button -->
+                <button @click="open = !open" type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400  hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2" aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="absolute -inset-0.5"></span>
+                    <span class="sr-only">Open main menu</span>
+                    <!-- Menu open: "hidden", Menu closed: "block" -->
+                    <svg :class="{ 'hidden': open, 'block': !open }" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <!-- Menu open: "block", Menu closed: "hidden" -->
+                    <svg :class="{ 'block': open, 'hidden': !open }" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu, show/hide based on menu state. -->
+    <div x-show="open" class="md:hidden" id="mobile-menu">
+        <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+            <a href="{% url 'dashboard:home' %}"
+              class="block border-l-4 {% if request.resolver_match.url_name == 'home' %}border-primary bg-indigo-50 text-primary{% else %}border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800{% endif %} py-2 pl-3 pr-4 text-base font-semibold uppercase tracking-wide">
+                Home
+            </a>
+            <a href="{% url 'projects:project_list' %}"
+              class="block border-l-4 {% if request.resolver_match.url_name == 'project_list' %}border-primary bg-indigo-50 text-primary{% else %}border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800{% endif %} py-2 pl-3 pr-4 text-base font-semibold uppercase tracking-wide">
+                Projects
+            </a>
+            <a href="{% url 'dashboard:public_dashboard' %}"
+              class="block border-l-4 {% if request.resolver_match.url_name == 'public_dashboard' %}border-primary bg-indigo-50 text-primary{% else %}border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800{% endif %} py-2 pl-3 pr-4 text-base font-semibold uppercase tracking-wide">
+                 Public Dashboard
+            </a>
+            {% if user.is_authenticated and user.role != 'public' %}
+            {% if user.role == 'executive' %}
+            <a href="{% url 'dashboard:executive_dashboard' %}"
+              class="block border-l-4 {% if request.resolver_match.url_name == 'executive_dashboard' %}border-primary bg-indigo-50 text-primary{% else %}border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800{% endif %} py-2 pl-3 pr-4 text-base font-semibold uppercase tracking-wide">
+               Executive Dashboard
+            </a>
+            {% elif user.role == 'departmental' %}
+            <a href="{% url 'dashboard:departmental_dashboard' %}"
+              class="block border-l-4 {% if request.resolver_match.url_name == 'departmental_dashboard' %}border-primary bg-indigo-50 text-primary{% else %}border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800{% endif %} py-2 pl-3 pr-4 text-base font-semibold uppercase tracking-wide">
+               Department Dashboard
+            </a>
+            {% endif %}
+            {% endif %}
+        </div>
+        <div class="border-t pb-3 pt-4">
+             {% if user.is_authenticated %}
+                <div class="flex items-center px-5">
+                     <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary">
+                            <span class="text-base font-medium leading-none text-white">{{ user.email|slice:":1"|upper }}</span>
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium leading-none text-white">{{ user.get_full_name|default:user.email }}</div>
+                        <div class="text-sm font-medium leading-none text-gray-400">{{ user.email }}</div>
+                    </div>
+                    <!-- Bell icon button would go here if needed -->
+                </div>
+                <div class="mt-3 space-y-1 px-2">
+                    <a href="{% url 'accounts:profile' %}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400  hover:text-white">Your Profile</a>
+                     {% if user.is_staff %}
+                        <a href="{% url 'admin:index' %}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400  hover:text-white">Admin</a>
+                    {% endif %}
+                    <form id="logout-form-mobile" method="post" action="{% url 'accounts:logout' %}" style="display: none;">{% csrf_token %}</form>
+                    <a href="#" onclick="document.getElementById('logout-form-mobile').submit(); return false;" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400  hover:text-white">Sign out</a>
+                </div>
+             {% else %}
+                <div class="space-y-1 px-2">
+                    <a href="{% url 'accounts:login' %}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400  hover:text-white">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400  hover:text-white">Register</a>
+                </div>
+             {% endif %}
+        </div>
+    </div>
+</nav>
+<!-- End Navigation -->

@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-2xl font-semibold leading-6 text-gray-900 mb-6">{{ title }}</h3>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-8 divide-y divide-gray-200">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="rounded-md bg-red-50 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Please correct the errors below:</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul role="list" class="list-disc pl-5 space-y-1">
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+                    <div>
+                        <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
+                            <div>
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+                                <p class="mt-1 max-w-2xl text-sm text-gray-500">Essential details about the project.</p>
+                            </div>
+                            <div class="space-y-6 sm:space-y-5">
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Project Name <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <input type="text" name="{{ form.name.name }}"
+                                               id="{{ form.name.id_for_label }}"
+                                               class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.name.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                               value="{{ form.name.value|default:'' }}" required>
+                                        {% if form.name.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.name.errors|first }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label for="{{ form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Department <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <select name="{{ form.department.name }}"
+                                                id="{{ form.department.id_for_label }}"
+                                                class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.department.errors %}border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500{% endif %}" required>
+                                            <option value="">Select Department</option>
+                                            {% for choice in form.department.field.choices %}
+                                                {% if choice.0 %}
+                                                    <option value="{{ choice.0 }}" {% if form.department.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>
+                                                        {{ choice.1 }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.department.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.department.errors|first }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label for="{{ form.subcounty.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Sub-County <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <select name="{{ form.subcounty.name }}"
+                                                id="{{ form.subcounty.id_for_label }}"
+                                                class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.subcounty.errors %}border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500{% endif %}" required>
+                                            <option value="">Select Sub-County</option>
+                                            {# Dynamically populated choices #}
+                                            {% for choice in form.subcounty.field.choices %}
+                                                {% if choice.0 %}
+                                                    <option value="{{ choice.0 }}" {% if form.subcounty.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>
+                                                        {{ choice.1 }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.subcounty.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.subcounty.errors|first }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label for="{{ form.ward.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Ward <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <select name="{{ form.ward.name }}"
+                                                id="{{ form.ward.id_for_label }}"
+                                                class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.ward.errors %}border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500{% endif %}" required>
+                                            <option value="">Select Ward</option>
+                                             {# Dynamically populated choices #}
+                                             {% for choice in form.ward.field.choices %}
+                                                {% if choice.0 %}
+                                                    <option value="{{ choice.0 }}" {% if form.ward.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>
+                                                        {{ choice.1 }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <p class="mt-2 text-sm text-gray-500">Select Sub-County first to load wards.</p>
+                                        {% if form.ward.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.ward.errors|first }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Description <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <textarea name="{{ form.description.name }}"
+                                                  id="{{ form.description.id_for_label }}"
+                                                  rows="5"
+                                                  class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md {% if form.description.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}" required>{{ form.description.value|default:'' }}</textarea>
+                                        {% if form.description.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.description.errors|first }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {# Project Type #}
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Project Type</label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        <div class="space-x-4 flex">
+                                             {% for radio in form.project_type %}
+                                                <div class="flex items-center">
+                                                    {{ radio.tag }}
+                                                    <label for="{{ radio.id_for_label }}" class="ml-2 block text-sm text-gray-900">{{ radio.choice_label }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if form.project_type.errors %}<p class="mt-2 text-sm text-red-600">{{ form.project_type.errors|first }}</p>{% endif %}
+                                    </div>
+                                </div>
+
+                                {# Is Flagship #}
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                     <label for="{{ form.is_flagship.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">{{ form.is_flagship.label }}</label>
+                                     <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                         <div class="flex items-center h-5">
+                                              <input type="checkbox" name="{{ form.is_flagship.name }}"
+                                                     id="{{ form.is_flagship.id_for_label }}"
+                                                     class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded {% if form.is_flagship.errors %}border-red-500{% endif %}"
+                                                     {% if form.is_flagship.value %}checked{% endif %}>
+                                         </div>
+                                         {% if form.is_flagship.help_text %}<p class="mt-1 text-xs text-gray-500">{{ form.is_flagship.help_text }}</p>{% endif %}
+                                         {% if form.is_flagship.errors %}<p class="mt-2 text-sm text-red-600">{{ form.is_flagship.errors|first }}</p>{% endif %}
+                                     </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
+                         <div>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Timeline and Status</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Project duration and current phase.</p>
+                        </div>
+                         <div class="space-y-6 sm:space-y-5">
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Start Date</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="{{ form.start_date.field.widget.input_type }}" name="{{ form.start_date.name }}"
+                                           id="{{ form.start_date.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.start_date.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}">
+                                    {% if form.start_date.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.start_date.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">End Date</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="{{ form.end_date.field.widget.input_type }}" name="{{ form.end_date.name }}"
+                                           id="{{ form.end_date.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.end_date.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}">
+                                     {% if form.end_date.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.end_date.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Status <span class="text-red-500">*</span></label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                     <select name="{{ form.status.name }}"
+                                             id="{{ form.status.id_for_label }}"
+                                             class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.status.errors %}border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500{% endif %}" required>
+                                         {% for choice in form.status.field.choices %}
+                                             <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>
+                                                 {{ choice.1 }}
+                                             </option>
+                                         {% endfor %}
+                                     </select>
+                                    {% if form.status.errors %}<p class="mt-2 text-sm text-red-600">{{ form.status.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
+                         <div>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Financial Information</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Budgetary details for the project.</p>
+                        </div>
+                         <div class="space-y-6 sm:space-y-5">
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.budget_allocation.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Budget Allocation (KES) <span class="text-red-500">*</span></label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="number" name="{{ form.budget_allocation.name }}"
+                                           id="{{ form.budget_allocation.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.budget_allocation.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.budget_allocation.value|default:'' }}" step="0.01" required>
+                                     {% if form.budget_allocation.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.budget_allocation.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.expenditure.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Expenditure to Date (KES)</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="number" name="{{ form.expenditure.name }}"
+                                           id="{{ form.expenditure.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.expenditure.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.expenditure.value|default:'0' }}" step="0.01">
+                                     {% if form.expenditure.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.expenditure.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.funding_source.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Funding Source <span class="text-red-500">*</span></label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <select name="{{ form.funding_source.name }}"
+                                            id="{{ form.funding_source.id_for_label }}"
+                                            class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.funding_source.errors %}border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500{% endif %}" required>
+                                        {% for choice in form.funding_source.field.choices %}
+                                            <option value="{{ choice.0 }}" {% if form.funding_source.value == choice.0 %}selected{% endif %}>
+                                                {{ choice.1 }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                     {% if form.funding_source.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.funding_source.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.financial_year.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Financial Year <span class="text-red-500">*</span></label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="text" name="{{ form.financial_year.name }}"
+                                           id="{{ form.financial_year.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.financial_year.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.financial_year.value|default:'' }}" placeholder="e.g. 2023-2024" required>
+                                     {% if form.financial_year.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.financial_year.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
+                         <div>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Implementation Details</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Information about contractors and location.</p>
+                        </div>
+                         <div class="space-y-6 sm:space-y-5">
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.contractor_name.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Contractor Name</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="text" name="{{ form.contractor_name.name }}"
+                                           id="{{ form.contractor_name.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.contractor_name.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.contractor_name.value|default:'' }}">
+                                     {% if form.contractor_name.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.contractor_name.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.contractor_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Contractor Phone</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="text" name="{{ form.contractor_phone.name }}"
+                                           id="{{ form.contractor_phone.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.contractor_phone.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.contractor_phone.value|default:'' }}">
+                                    {% if form.contractor_phone.help_text %}<p class="mt-1 text-xs text-gray-500">{{ form.contractor_phone.help_text }}</p>{% endif %}
+                                    {% if form.contractor_phone.errors %}<p class="mt-2 text-sm text-red-600">{{ form.contractor_phone.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.contractor_email.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Contractor Email</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                     <input type="email" name="{{ form.contractor_email.name }}"
+                                            id="{{ form.contractor_email.id_for_label }}"
+                                            class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.contractor_email.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                            value="{{ form.contractor_email.value|default:'' }}">
+                                    {% if form.contractor_email.help_text %}<p class="mt-1 text-xs text-gray-500">{{ form.contractor_email.help_text }}</p>{% endif %}
+                                    {% if form.contractor_email.errors %}<p class="mt-2 text-sm text-red-600">{{ form.contractor_email.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label for="{{ form.contractor_address.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Contractor Address</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                     <textarea name="{{ form.contractor_address.name }}"
+                                               id="{{ form.contractor_address.id_for_label }}"
+                                               rows="2"
+                                               class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md {% if form.contractor_address.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}">{{ form.contractor_address.value|default:'' }}</textarea>
+                                    {% if form.contractor_address.help_text %}<p class="mt-1 text-xs text-gray-500">{{ form.contractor_address.help_text }}</p>{% endif %}
+                                    {% if form.contractor_address.errors %}<p class="mt-2 text-sm text-red-600">{{ form.contractor_address.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+
+                            {# Implementing Agency #}
+                            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                 <label for="{{ form.implementing_agency.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Implementing Agency </label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="text" name="{{ form.implementing_agency.name }}"
+                                           id="{{ form.implementing_agency.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.implementing_agency.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.implementing_agency.value|default:'' }}">
+                                    {% if form.implementing_agency.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.implementing_agency.errors|first }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                             <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                 <label for="{{ form.google_map_location.id_for_label }}" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Google Map Link</label>
+                                <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <input type="text" name="{{ form.google_map_location.name }}"
+                                           id="{{ form.google_map_location.id_for_label }}"
+                                           class="max-w-lg block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if form.google_map_location.errors %}border-red-500 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500{% endif %}"
+                                           value="{{ form.google_map_location.value|default:'' }}">
+                                    {% if form.google_map_location.help_text %}<p class="mt-1 text-xs text-gray-500">{{ form.google_map_location.help_text }}</p>{% endif %}
+                                    {% if form.google_map_location.errors %}<p class="mt-2 text-sm text-red-600">{{ form.google_map_location.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# --- Project Photos Section --- #}
+                    <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
+                        <div>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Project Photos</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage project photos. Add photos one by one with optional captions.</p>
+                        </div>
+                        <div class="space-y-6 sm:space-y-5">
+                            {# Display Existing Photos (if updating) #}
+                            {% if project %}
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Existing Photos</label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                        {% with project.photos.all as existing_photos %}
+                                            {% if existing_photos %}
+                                                <ul role="list" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
+                                                    {% for photo in existing_photos %}
+                                                        <li class="relative">
+                                                            <div class="group block w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-primary overflow-hidden">
+                                                                <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Project photo' }}" class="object-cover pointer-events-none group-hover:opacity-75">
+                                                                <a href="{{ photo.image.url }}" target="_blank" class="absolute inset-0 focus:outline-none"></a>
+                                                                    <span class="sr-only">View details for {{ photo.caption|default:'Project photo' }}</span>
+                                                            </div>
+                                                            <p class="mt-1 block text-xs font-medium text-gray-500 truncate pointer-events-none">
+                                                                {{ photo.caption|default:'' }} {% if photo.is_cover %}<span class="text-primary font-semibold">(Cover)</span>{% endif %}
+                                                            </p>
+                                                            {# Consider adding delete/set cover buttons here via project_manage_photos view later #}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p class="text-sm text-gray-500">No photos uploaded yet.</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# --- Dynamic Photo Upload Inputs --- #}
+                            <div id="photo-upload-container" class="space-y-5">
+                                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5 photo-upload-group">
+                                    <label for="id_new_photo_0" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Add Photo 1</label>
+                                    <div class="mt-1 sm:mt-0 sm:col-span-2 space-y-3">
+                                        <input type="file" name="new_photo_0" id="id_new_photo_0" accept="image/*"
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                        <input type="text" name="new_caption_0" id="id_new_caption_0" placeholder="Optional caption for Photo 1"
+                                               class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+                                <!-- More photo inputs will be added here by JS -->
+                            </div>
+
+                            <div class="sm:border-t sm:border-gray-200 sm:pt-5 flex justify-end">
+                                <button type="button" id="add-photo-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Add Another Photo
+                                </button>
+                            </div>
+                             {# --- End Dynamic Photo Upload Inputs --- #}
+
+                        </div>
+                    </div>
+                    {# --- End Project Photos Section --- #}
+
+                </div>
+
+                <div class="pt-5">
+                    <div class="flex justify-end">
+                        <a href="{% if project %}{% url 'projects:project_detail' project.slug %}{% else %}{% url 'projects:project_list' %}{% endif %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Save Project
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %}
+Add JavaScript for dynamic Ward loading based on SubCounty selection.
+Example using vanilla JS or a library like htmx/Alpine.js
+{% endcomment %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subcountySelect = document.getElementById('{{ form.subcounty.id_for_label }}');
+    const wardSelect = document.getElementById('{{ form.ward.id_for_label }}');
+    const initialWardValue = '{{ form.ward.value|default:"" }}'; // Store initial value
+
+    function loadWards(subcountyId) {
+        const url = `/api/wards/?subcounty=${subcountyId}`;
+        // Clear existing options except the placeholder
+        wardSelect.innerHTML = '<option value="">Select Ward</option>';
+        wardSelect.disabled = true;
+
+        if (!subcountyId) {
+            wardSelect.disabled = false; // Re-enable if no subcounty is selected
+            return;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.value = ward.id;
+                    option.textContent = ward.name;
+                    // Reselect the initial value if it matches
+                    if (ward.id.toString() === initialWardValue) {
+                        option.selected = true;
+                    }
+                    wardSelect.appendChild(option);
+                });
+                wardSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading wards:', error);
+                wardSelect.disabled = false; // Re-enable on error
+            });
+    }
+
+    // Initial load if subcounty is already selected (e.g., on form edit)
+    if (subcountySelect.value) {
+        loadWards(subcountySelect.value);
+    }
+
+    // Add event listener for SubCounty change
+    subcountySelect.addEventListener('change', function() {
+        loadWards(this.value);
+    });
+
+    // --- Add Photo Input Logic --- //
+    const photoContainer = document.getElementById('photo-upload-container');
+    const addPhotoButton = document.getElementById('add-photo-btn');
+    let photoIndex = 1;
+
+    addPhotoButton.addEventListener('click', function() {
+        const newPhotoGroup = document.createElement('div');
+        newPhotoGroup.classList.add('sm:grid', 'sm:grid-cols-3', 'sm:gap-4', 'sm:items-start', 'sm:border-t', 'sm:border-gray-200', 'sm:pt-5', 'photo-upload-group');
+
+        const label = document.createElement('label');
+        label.setAttribute('for', `id_new_photo_${photoIndex}`);
+        label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'sm:mt-px', 'sm:pt-2');
+        label.textContent = `Add Photo ${photoIndex + 1}`;
+
+        const inputDiv = document.createElement('div');
+        inputDiv.classList.add('mt-1', 'sm:mt-0', 'sm:col-span-2', 'space-y-3');
+
+        const fileInput = document.createElement('input');
+        fileInput.setAttribute('type', 'file');
+        fileInput.setAttribute('name', `new_photo_${photoIndex}`);
+        fileInput.setAttribute('id', `id_new_photo_${photoIndex}`);
+        fileInput.setAttribute('accept', 'image/*');
+        fileInput.classList.add('block', 'w-full', 'text-sm', 'text-gray-500', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-md', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-primary/10', 'file:text-primary', 'hover:file:bg-primary/20');
+
+        const captionInput = document.createElement('input');
+        captionInput.setAttribute('type', 'text');
+        captionInput.setAttribute('name', `new_caption_${photoIndex}`);
+        captionInput.setAttribute('id', `id_new_caption_${photoIndex}`);
+        captionInput.setAttribute('placeholder', `Optional caption for Photo ${photoIndex + 1}`);
+        captionInput.classList.add('block', 'w-full', 'shadow-sm', 'focus:ring-primary', 'focus:border-primary', 'sm:text-sm', 'border-gray-300', 'rounded-md');
+
+        inputDiv.appendChild(fileInput);
+        inputDiv.appendChild(captionInput);
+        newPhotoGroup.appendChild(label);
+        newPhotoGroup.appendChild(inputDiv);
+
+        // Insert the new group before the button container (or just append to the main container)
+        photoContainer.appendChild(newPhotoGroup);
+
+        photoIndex++;
+    });
+
+});
+</script>
+{% endblock %}

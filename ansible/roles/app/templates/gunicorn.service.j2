@@ -1,0 +1,18 @@
+[Unit]
+Description=Gunicorn daemon for {{ app_name }}
+After=network.target
+
+[Service]
+User={{ gunicorn_user }}
+Group={{ gunicorn_group }}
+WorkingDirectory={{ app_src_dir }}
+EnvironmentFile={{ app_src_dir }}/.env
+ExecStart={{ app_env_dir }}/bin/gunicorn \
+          --workers {{ gunicorn_workers }} \
+          --bind {{ gunicorn_bind }} \
+          --access-logfile {{ app_logs_dir }}/gunicorn-access.log \
+          --error-logfile {{ app_logs_dir }}/gunicorn-error.log \
+          county_pmts.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

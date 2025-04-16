@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static humanize dashboard_extras %}
+
+{% block title %}Public Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold leading-tight text-gray-900">Public Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-600">Project statistics overview. Select a timeframe to filter the data.</p>
+        </div>
+        <!-- Filter Form -->
+        <form method="get" class="w-full md:w-auto">
+            <label for="timeframe" class="block text-sm font-medium text-gray-700 mb-1">Select Timeframe</label>
+            <div class="flex gap-2">
+                <select name="timeframe" id="timeframe" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                    <option value="all_time" {% if current_timeframe == 'all_time' %}selected{% endif %}>All Time</option>
+                    {# Use dynamic term value and label from context #}
+                    <option value="{{ current_term_value }}" {% if current_timeframe == current_term_value %}selected{% endif %}>{{ current_term_label }}</option>
+                    <optgroup label="Financial Year">
+                        {% for year in all_financial_years %}
+                            <option value="fy_{{ year }}" {% if current_timeframe == 'fy_'|add:year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+                <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">Apply</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="mb-6 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-md text-sm">
+        Showing data for: <span class="font-semibold">{{ current_timeframe_label }}</span>
+    </div>
+
+    <!-- Quick Stats Section -->
+    <div class="mb-12">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
+        <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">All Projects</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ quick_stats.all.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.all.budget|intcomma }}</dd>
+            </div>
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Completed</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">{{ quick_stats.completed.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.completed.budget|intcomma }}</dd>
+            </div>
+             <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Ongoing</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-blue-600">{{ quick_stats.ongoing.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.ongoing.budget|intcomma }}</dd>
+            </div>
+             <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Not Started</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-600">{{ quick_stats.not_started.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.not_started.budget|intcomma }}</dd>
+            </div>
+             <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Under Procurement</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-cyan-600">{{ quick_stats.under_procurement.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.under_procurement.budget|intcomma }}</dd>
+            </div>
+             <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Stalled</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-red-600">{{ quick_stats.stalled.count|intcomma }}</dd>
+                <dd class="mt-1 text-sm text-gray-500">Budget: KES {{ quick_stats.stalled.budget|intcomma }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Projects Per Department Section -->
+    <div x-data="{ open: true }" class="mb-12 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-900">Projects Per Department</h2>
+            <button @click="open = !open" class="text-sm font-medium text-primary hover:text-primary/80">
+                <span x-show="open">Collapse</span>
+                <span x-show="!open">Expand</span>
+            </button>
+        </div>
+        <div x-show="open" x-transition class="border-t border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ongoing</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Not Started</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stalled</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Procurement</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Projects</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for dept in departments_stats %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <a href="{% url 'projects:project_list' %}?department={{ dept.id }}&timeframe={{ current_timeframe }}" class="text-primary hover:underline">{{ dept.name }}</a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">{{ dept.completed_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">{{ dept.ongoing_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">{{ dept.not_started_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">{{ dept.stalled_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-cyan-600">{{ dept.under_procurement_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">{{ dept.total_projects|intcomma }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No department data found for the selected timeframe.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Per Sub-County Section -->
+     <div class="mb-12 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h2 class="text-xl font-semibold text-gray-900">Projects Per Sub-County</h2>
+        </div>
+        <div class="border-t border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sub-County</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number of Projects</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Budgeted Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for sc in subcounty_stats %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <a href="{% url 'projects:project_list' %}?subcounty={{ sc.id }}&timeframe={{ current_timeframe }}" class="text-primary hover:underline">{{ sc.name }}</a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sc.project_count|intcomma }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES {{ sc.total_budget|intcomma }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">No sub-county data found for the selected timeframe.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Per Ward Section -->
+     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h2 class="text-xl font-semibold text-gray-900">Projects Per Ward</h2>
+        </div>
+        <div class="border-t border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sub-County</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ward</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Budgeted Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                            {% for subcounty_name, wards in wards_by_subcounty.items %}
+                                {% for ward in wards %}
+                                    <tr>
+                                        {% if forloop.first %}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 align-top" rowspan="{{ wards|length }}">{{ subcounty_name }}</td>
+                                        {% endif %}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <a href="{% url 'projects:project_list' %}?ward={{ ward.id }}&subcounty={{ ward.subcounty_id }}&timeframe={{ current_timeframe }}" class="text-primary hover:underline">{{ ward.name }}</a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div class="flex flex-wrap gap-2">
+                                                {% for status_key, status_info in status_badges.items %}
+                                                    {% with count=ward|get_item:status_key %}
+                                                        {% if count > 0 %}
+                                                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ status_info.class }}">
+                                                                {{ count|intcomma }} {{ status_info.label }}
+                                                            </span>
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES {{ ward.total_budget|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No ward data found for the selected timeframe.</td>
+                                </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

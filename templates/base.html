@@ -1,0 +1,74 @@
+{% load static tailwind_tags layout_tags %}
+{% load layout_tags %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}
+        PMTS
+      {% endblock %}
+    </title>
+
+    {% tailwind_css %}
+
+    {% block extra_css %}
+    {% endblock %}
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+  </head>
+  <body class="h-full overflow-hidden">
+    {% should_show_sidebar as show_sidebar %}
+
+    {# Alpine context #}
+    <div x-data="{ isSidebarOpen: true }" x-cloak class="h-full">
+
+      {# Main Flex Container - Use h-full #}
+      <div class="flex h-full">
+
+        {# Sidebar #}
+        {% if show_sidebar %}
+          {% include 'partials/_sidebar.html' %}
+        {% endif %}
+
+        {# Main Content Area - Becomes the scrollable column #}
+        <div class="flex flex-1 flex-col overflow-y-auto h-screen"> {# Added overflow-y-auto, h-screen #}
+
+          {# Navbar (If applicable on non-sidebar pages) #}
+          {% if not show_sidebar %}
+            <div class="shrink-0">
+                 {% include 'partials/_navbar.html' %}
+            </div>
+          {% endif %}
+
+          <!-- Messages -->
+          <div class="shrink-0 px-6 pt-6">
+             {% include 'partials/_messages.html' %}
+          </div>
+
+          <!-- Main Content Wrapper (No independent scroll here) -->
+          <main class="flex-grow px-6 py-6"> {# Remove overflow/height from main #}
+            {% block content %}
+               Content goes here
+            {% endblock %}
+          </main>
+
+          <!-- Footer -->
+           <div class="shrink-0 px-6 pb-6">
+               {% include 'partials/_footer.html' %}
+           </div>
+        </div> {# End Main Content Scrollable Column #}
+      </div> {# End Main Flex Container #}
+    </div> {# End Alpine Context #}
+
+    <!-- Extra JavaScript -->
+    {% block extra_js %}
+    {% endblock %}
+  </body>
+</html>

@@ -1,0 +1,125 @@
+{% load static %}
+
+{# Sidebar Column - Flex child, defined width, internal scroll #}
+<div class="flex flex-col flex-shrink-0 h-screen bg-white border-r border-gray-200 overflow-y-auto"
+     :class="{ 'w-60': isSidebarOpen, 'w-16': !isSidebarOpen }"
+     >
+
+    {# Container for logo + nav list (to allow sticky button at bottom) #}
+    <div class="flex grow flex-col gap-y-5 pt-4 pb-4"> {# Removed overflow from here #}
+        {# Logo Area #}
+         <div class="flex h-16 shrink-0 items-center" :class="isSidebarOpen ? 'px-4 justify-between' : 'px-4 justify-center'">
+            {# Full Logo #}
+            <a href="/" class="flex items-center gap-2" x-show="isSidebarOpen">
+                <img class="h-10 w-auto" src="{% static 'images/trans-nzoia-county-logo.png' %}" alt="County PMTS">
+            </a>
+            {# Icon Logo #}
+             <a href="/" x-show="!isSidebarOpen">
+                <img class="h-8 w-auto" src="{% static 'images/trans-nzoia-logo-sm.png' %}" alt="PMTS">
+             </a>
+         </div>
+
+        {# Navigation #}
+        <nav class="flex flex-1 flex-col" :class="isSidebarOpen ? 'px-2' : 'px-1'">
+            <ul role="list" class="flex flex-1 flex-col gap-y-4">
+                <li>
+                    <ul role="list" class="-mx-2 space-y-1">
+                        {# --- Navigation Items --- #}
+                        <li>
+                            {% url 'dashboard:executive_dashboard' as exec_dash_url %}
+                            {% url 'dashboard:departmental_dashboard' as dept_dash_url %}
+                            {% if request.user.is_executive %}{% url 'dashboard:executive_dashboard' as dashboard_url %}{% elif request.user.is_departmental %}{% url 'dashboard:departmental_dashboard' as dashboard_url %}{% else %}{% url 'dashboard:home' as dashboard_url %}{% endif %}
+                            <a href="{{ dashboard_url }}" title="Dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.path == exec_dash_url or request.path == dept_dash_url %}bg-gray-100 text-primary{% else %}text-gray-700 hover:text-primary hover:bg-gray-50{% endif %}" :class="{ 'justify-center': !isSidebarOpen }">
+                                <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5"/></svg>
+                                <span x-show="isSidebarOpen" >Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            {% url 'projects:project_list' as projects_url %}
+                            <a href="{{ projects_url }}" title="Projects" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if projects_url in request.path %}bg-gray-100 text-primary{% else %}text-gray-700 hover:text-primary hover:bg-gray-50{% endif %}" :class="{ 'justify-center': !isSidebarOpen }">
+                                 <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>
+                                <span x-show="isSidebarOpen" >Projects</span>
+                            </a>
+                            {# Child Links #}
+                             {% if request.user.is_executive and request.resolver_match.view_name == 'dashboard:executive_dashboard' %}
+                                <div x-show="isSidebarOpen" x-collapse>
+                                    <ul class="mt-1 space-y-1" style="padding-left: 20px;">
+                                        <li><a href="#department-performance-table" class="group flex gap-x-3 rounded-md py-2 pr-2 pl-16 text-xs leading-5 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50 border-l-2 border-gray-200"><svg class="h-5 w-5 shrink-0 text-gray-400 group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg><span>Department Projects</span></a></li>
+                                        <li><a href="#subcounty-performance-table" class="group flex gap-x-3 rounded-md py-2 pr-2 pl-16 text-xs leading-5 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50 border-l-2 border-gray-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0 text-gray-400 group-hover:text-primary">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+</svg><span>Sub-County Projects</span></a></li>
+                                        <li><a href="#ward-performance-table" class="group flex gap-x-3 rounded-md py-2 pr-2 pl-16 text-xs leading-5 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50 border-l-2 border-gray-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 shrink-0 text-gray-400 group-hover:text-primary">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
+</svg><span>Ward Projects</span></a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </li>
+                        <li>
+                             <a href="{% url 'projects:project_list' %}?is_flagship=true" title="Flagship Projects" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50" :class="{ 'justify-center': !isSidebarOpen }">
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6 shrink-0">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+</svg>
+                                <span x-show="isSidebarOpen" >Flagship Projects</span>
+                            </a>
+                        </li>
+                         <li>
+                            {% url 'projects:feedback_dashboard' as feedback_url %}
+                             <a href="{{ feedback_url }}" title="Project Feedback" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50" :class="{ 'justify-center': !isSidebarOpen }">
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6 shrink-0">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+</svg>
+                                <span x-show="isSidebarOpen" >Project Feedback</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {# User Info & Actions #}
+                <li class="mt-auto">
+                     <div class="mb-2" :class="isSidebarOpen ? 'px-2' : 'px-1'">
+                         {# User Info #}
+                         <div class="flex items-center gap-x-3 py-2" :class="{ 'justify-center': !isSidebarOpen }">
+                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-500 flex-shrink-0">
+                                <span class="text-sm font-medium leading-none text-white">{{ request.user.get_short_name|default:'U'|slice:':1'|upper }}</span>
+                             </span>
+                             <div class="text-sm leading-6 overflow-hidden whitespace-nowrap" x-show="isSidebarOpen">
+                                 <div class="font-semibold text-gray-900 truncate">{{ request.user.get_full_name|default:request.user.email }}</div>
+                                 <div class="text-xs text-gray-500 truncate">{{ request.user.get_role_display }}</div>
+                             </div>
+                         </div>
+                         {# Profile Link #}
+                         <a href="{% url 'accounts:profile' %}" title="Profile" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50" :class="{ 'justify-center': !isSidebarOpen }">
+                             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                             <span x-show="isSidebarOpen" >Profile</span>
+                         </a>
+                         {# Logout Link #}
+                         <form action="{% url 'accounts:logout' %}" method="post">
+                            {% csrf_token %}
+                         <button type="submit" title="Log out" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-gray-700 hover:text-primary hover:bg-gray-50" :class="{ 'justify-center': !isSidebarOpen }">
+                             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                             <span x-show="isSidebarOpen" >Log out</span>
+                         </button>
+                        </form>
+                     </div>
+                 </li>
+            </ul>
+        </nav>
+    </div>
+
+    {# Collapse Toggle Button - Stick to bottom of sidebar column #}
+    <div class="flex-shrink-0 border-t border-gray-200 bg-white"> {# Wrap button for positioning #}
+         <button @click="isSidebarOpen = !isSidebarOpen"
+                 class="group flex w-full items-center gap-x-3 p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-primary"
+                 :class="isSidebarOpen ? 'justify-start' : 'justify-center'"
+                 :title="isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'">
+             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" x-show="isSidebarOpen"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" x-show="!isSidebarOpen"/>
+              </svg>
+             <span class="sr-only" x-text="isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'"></span>
+             <span x-show="isSidebarOpen" >Collapse</span>
+         </button>
+    </div>
+</div>

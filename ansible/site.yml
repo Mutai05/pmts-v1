@@ -1,0 +1,13 @@
+- name: Configure server
+  hosts: linode
+  become: yes
+  vars_files:
+    - vars.yml
+    - vault.yml
+
+  roles:
+    - { role: common, tags: ["setup"] }
+    - { role: database, tags: ["setup"] }
+    - { role: web, tags: ["setup"] }
+    - { role: app, tags: ["setup"] }
+    - { role: deploy, tags: ["deploy"] }

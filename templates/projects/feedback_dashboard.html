@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ showFilters: false }">
+
+    {# Header Row: Title, Filter Button #}
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-2 sm:mb-0">{{ title }}</h1>
+        <button @click="showFilters = !showFilters" class="flex items-center rounded-md bg-gradient-to-tr from-slate-800 to-slate-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" style="background: rgb(147 52 232);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-1.5">
+                <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 10 18.25v-5.757a2.25 2.25 0 0 0-.659-1.59L4.659 6.22A2.25 2.25 0 0 1 4 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
+            </svg>
+            Filters
+        </button>
+    </div>
+
+    {# Active Filter Badges Section #}
+    {% if active_filters %}
+        <div class="mb-4 mt-2 pt-3 pb-3 border-t border-b border-gray-200">
+             <div class="flex flex-wrap items-center gap-2">
+                 <span class="text-sm font-medium text-gray-600 mr-2">Active Filters:</span>
+                 {% for filter in active_filters %}
+                     <span class="inline-flex items-center py-0.5 pl-2.5 pr-1 text-sm font-medium bg-blue-100 text-blue-700 rounded-full">
+                         {{ filter.label }}: {{ filter.value }}
+                         <a href="?{% for key, value in request.GET.items %}{% if key != filter.key and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}per_page={{ current_per_page }}" {# Keep per_page #}
+                             class="flex-shrink-0 ml-1 h-4 w-4 rounded-full inline-flex items-center justify-center text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none focus:bg-blue-500 focus:text-white">
+                              <span class="sr-only">Remove {{ filter.label }} filter</span>
+                              <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8"><path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7"></path></svg>
+                          </a>
+                     </span>
+                 {% endfor %}
+                 <a href="{% url 'projects:feedback_dashboard' %}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline ml-2">Clear All Filters</a>
+             </div>
+        </div>
+    {% endif %}
+
+    <!-- Filter Form -->
+    <div x-show="showFilters" x-transition
+         class="bg-gray-50 border border-gray-200 rounded-lg mb-6 overflow-hidden"
+         style="display: none;" {# Hide initially to prevent flash #}
+    >
+        <div class="p-4 sm:p-6">
+             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filter Feedback</h3>
+             <form method="get">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {# Render filter fields manually #}
+                    {% for field in filter.form %}
+                         <div class="fieldWrapper">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            {# Manually render field with Tailwind classes #}
+                            {% if field.field.widget.input_type == 'select' %}
+                                <select name="{{ field.name }}" id="{{ field.id_for_label }}"
+                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                    {# Ensure options are correctly rendered, checking against field's bound value #}
+                                    {% for choice_value, choice_label in field.field.choices %}
+                                        <option value="{{ choice_value }}" {% if field.value|stringformat:"s" == choice_value|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                             {% elif field.field.widget.input_type == 'checkbox' %}
+                                 <div class="mt-1">
+                                     <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'true' }}"
+                                            class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" {% if field.value %}checked{% endif %}>
+                                 </div>
+                             {% else %} {# Assuming text input #}
+                                 <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}"
+                                        class="mt-1 block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md">
+                             {% endif %}
+
+                            {% if field.help_text %}
+                                <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                         </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <a href="{% url 'projects:feedback_dashboard' %}" class="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Clear Filters</a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Items per page control -->
+    <div class="mt-4 mb-4 flex justify-end items-center">
+        <form method="get" class="flex items-center space-x-2">
+            {# Preserve existing filters #}
+            {% for key, value in request.GET.items %}
+                {% if key != 'per_page' and key != 'page' %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <label for="per_page" class="text-sm font-medium text-gray-700">Items per page:</label>
+            <select name="per_page" id="per_page" onchange="this.form.submit()" class="block w-auto pl-3 pr-8 py-1 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                {% for option in allowed_per_page_options %}
+                    <option value="{{ option }}" {% if option == current_per_page %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- Feedback List -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <ul role="list" class="divide-y divide-gray-200">
+            {% for feedback in feedback_page %}
+                <li class="p-4 sm:p-6">
+                    <div class="flex justify-between items-start mb-2">
+                         <div>
+                             <p class="text-sm font-medium text-gray-500">Project: <a href="{% url 'projects:project_detail' feedback.project.slug %}" class="text-indigo-600 hover:underline">{{ feedback.project.name }}</a></p>
+                            <p class="text-sm text-gray-500">Department: {{ feedback.project.department.name }}</p>
+                            <p class="text-sm text-gray-500">Location: {{ feedback.ward.name }}, {{ feedback.sub_county.name }}</p>
+                            <p class="text-sm text-gray-500">Submitted: {{ feedback.created_at|naturaltime }}</p>
+                         </div>
+                         <div class="flex-shrink-0 ml-4 flex items-center space-x-2">
+                            {# Rating Badge #}
+                             {% with rating=feedback.rating %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if rating == 5 %} bg-green-100 text-green-800
+                                    {% elif rating == 4 %} bg-blue-100 text-blue-800
+                                    {% elif rating == 3 %} bg-yellow-100 text-yellow-800
+                                    {% elif rating == 2 %} bg-orange-100 text-orange-800
+                                    {% elif rating == 1 %} bg-red-100 text-red-800
+                                    {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                    {{ feedback.get_rating_display }}
+                                </span>
+                            {% endwith %}
+                            {# Flagging Button #}
+                            <form method="post" action="{% url 'projects:feedback_dashboard' %}?{{ request.GET.urlencode }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_flag">
+                                <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                                <button type="submit" title="Toggle Flag Inappropriate"
+                                        class="p-1 rounded-full {% if feedback.flagged_inappropriate %} bg-red-100 hover:bg-red-200 {% else %} hover:bg-gray-100 {% endif %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-red-600">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                                    </svg>
+                                    <span class="sr-only">{% if feedback.flagged_inappropriate %}Unflag{% else %}Flag{% endif %}</span>
+                                </button>
+                            </form>
+                         </div>
+                    </div>
+
+                    <div class="mt-2 text-sm text-gray-700 prose max-w-none mb-4">
+                         {{ feedback.comment|linebreaks }}
+                    </div>
+
+                    <!-- Feedback Attachments -->
+                    {% if feedback.attachments.exists %}
+                        <div class="mb-3 flex flex-wrap gap-2">
+                            {% for attachment in feedback.attachments.all %}
+                                {% if attachment.is_image %}
+                                    <a href="{{ attachment.file.url }}" target="_blank" title="View attachment" class="group relative w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                                        <img src="{{ attachment.file.url }}" alt="Feedback attachment thumbnail" class="absolute inset-0 w-full h-full object-cover rounded-md group-hover:opacity-75">
+                                        <span class="sr-only">View attachment</span>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ attachment.file.url }}" target="_blank" title="View attachment: {{ attachment.file.name }}" class="flex items-center text-xs text-primary hover:text-primary/80 hover:underline p-1 bg-gray-50 rounded border border-gray-200 max-w-[100px]">
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>
+                                        <span class="truncate">{{ attachment.file.name|truncatechars:11 }}</span>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                     <!-- Staff Replies -->
+                     <div class="ml-4 pl-4 border-l border-gray-200 space-y-3 mt-3">
+                         {% for reply in feedback.replies.all %}
+                            <div class="bg-indigo-50 p-3 rounded-md">
+                                <p class="text-xs font-medium text-indigo-700">Reply by {{ reply.user.get_full_name|default:reply.user.email }} <span class="text-gray-500 font-normal">({{ reply.created_at|naturaltime }})</span></p>
+                                <p class="text-sm text-gray-800 mt-1">{{ reply.reply_text|linebreaks }}</p>
+                                <!-- Reply Attachments -->
+                                {% if reply.attachments.exists %}
+                                    <div class="mt-2 flex flex-wrap gap-2 border-t border-gray-200 pt-2">
+                                        {% for attachment in reply.attachments.all %}
+                                            {% if attachment.is_image %}
+                                                <a href="{{ attachment.file.url }}" target="_blank" title="View attachment" class="group relative w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+                                                    <img src="{{ attachment.file.url }}" alt="Staff reply attachment thumbnail" class="absolute inset-0 w-full h-full object-cover rounded-md group-hover:opacity-75">
+                                                    <span class="sr-only">View attachment</span>
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ attachment.file.url }}" target="_blank" title="View attachment: {{ attachment.file.name }}" class="flex items-center text-xs text-primary hover:text-primary/80 hover:underline p-1 bg-gray-50 rounded border border-gray-200 max-w-[100px]">
+                                                    <svg class="w-4 h-4 mr-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>
+                                                    <span class="truncate">{{ attachment.file.name|truncatechars:11 }}</span>
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                         {% empty %}
+                            <p class="text-xs text-gray-500 italic">No replies yet.</p>
+                         {% endfor %}
+                    </div>
+
+                     <!-- Reply Form -->
+                     <div class="ml-4 mt-4">
+                         <form method="post" action="{% url 'projects:feedback_dashboard' %}?{{ request.GET.urlencode }}" enctype="multipart/form-data">
+                             {% csrf_token %}
+                             <input type="hidden" name="action" value="add_reply">
+                             <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+
+                             {% comment %}
+                                Logic to display the correct form instance:
+                                - If reply_form in context has errors AND its instance feedback_id matches the current feedback loop item,
+                                  use that errored form instance.
+                                - Otherwise, use a clean StaffReplyForm instance.
+                             {% endcomment %}
+                             {% with errored_form_feedback_id=reply_form.instance.feedback_id|default:None %}
+                                 {% if reply_form.errors and errored_form_feedback_id == feedback.id %}
+                                     {% with current_reply_form=reply_form feedback_id=feedback.id %}
+                                         {# Display errored form content #}
+                                         <div class="space-y-2">
+                                            <textarea name="{{ current_reply_form.reply_text.name }}" rows="2"
+                                                id="id_reply_text_{{ feedback_id }}"
+                                                class="shadow-sm block w-full focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md {% if current_reply_form.reply_text.errors %}border-red-500{% endif %}"
+                                                placeholder="Write your reply...">{{ current_reply_form.reply_text.value|default:"" }}</textarea>
+                                            {% if current_reply_form.reply_text.errors %}
+                                                <p class="mt-1 text-sm text-red-600">{{ current_reply_form.reply_text.errors|first }}</p>
+                                            {% endif %}
+
+                                            <div>
+                                                <label for="id_reply_attachments_{{ feedback_id }}" class="block text-xs font-medium text-gray-700 mb-1">Attach Files (Optional)</label>
+                                                <input type="file" name="reply_attachments_{{ feedback_id }}" id="id_reply_attachments_{{ feedback_id }}" multiple
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                            </div>
+                                        </div>
+                                     {% endwith %}
+                                 {% else %}
+                                     {% with current_reply_form=reply_form feedback_id=feedback.id %}
+                                        {# Display clean form content #}
+                                        <div class="space-y-2">
+                                            <textarea name="{{ current_reply_form.reply_text.name }}" rows="2"
+                                                    id="id_reply_text_{{ feedback_id }}"
+                                                    class="shadow-sm block w-full focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md"
+                                                    placeholder="Write your reply..."></textarea>
+                                            <div>
+                                                <label for="id_reply_attachments_{{ feedback_id }}" class="block text-xs font-medium text-gray-700 mb-1">Attach Files (Optional)</label>
+                                                <input type="file" name="reply_attachments_{{ feedback_id }}" id="id_reply_attachments_{{ feedback_id }}" multiple
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                            </div>
+                                        </div>
+                                     {% endwith %}
+                                 {% endif %}
+                             {% endwith %}
+
+                             <div class="mt-2 flex justify-end">
+                                 <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Reply</button>
+                             </div>
+                         </form>
+                     </div>
+                </li>
+            {% empty %}
+                <li class="p-4 sm:p-6 text-center text-gray-500">
+                    No feedback found matching your criteria.
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination -->
+    {% if feedback_page.has_other_pages %}
+        <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
+            <div class="hidden sm:block">
+                <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ feedback_page.start_index }}</span>
+                    to <span class="font-medium">{{ feedback_page.end_index }}</span>
+                    of <span class="font-medium">{{ feedback_page.paginator.count }}</span> results
+                </p>
+            </div>
+            <div class="flex-1 flex justify-between sm:justify-end items-center">
+                 {# Previous Button #}
+                 {% if feedback_page.has_previous %}
+                    <a href="?page={{ feedback_page.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Previous</span>
+                        <!-- Heroicon name: solid/chevron-left -->
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                {% else %}
+                    <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-300 cursor-not-allowed">
+                        <span class="sr-only">Previous</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                {% endif %}
+
+                 {# Page Numbers #}
+                 {# Simplified logic: show current, +-2 pages, and ellipsis #}
+                 {% with current_page=feedback_page.number total_pages=feedback_page.paginator.num_pages page_range=feedback_page.paginator.page_range %}
+                    {% for i in page_range %}
+                        {% if i == current_page %}
+                            <span aria-current="page" class="relative z-10 inline-flex items-center px-4 py-2 border border-primary bg-primary/10 text-sm font-medium text-primary">
+                                {{ i }}
+                            </span>
+                        {% elif i > current_page|add:"-3" and i < current_page|add:"3" or i == 1 or i == total_pages %}
+                            <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                {{ i }}
+                            </a>
+                        {% elif i == current_page|add:"-3" and i > 1 or i == current_page|add:"3" and i < total_pages %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+                        {% endif %}
+                    {% endfor %}
+                 {% endwith %}
+
+                 {# Next Button #}
+                 {% if feedback_page.has_next %}
+                    <a href="?page={{ feedback_page.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Next</span>
+                        <!-- Heroicon name: solid/chevron-right -->
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                 {% else %}
+                    <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-300 cursor-not-allowed">
+                         <span class="sr-only">Next</span>
+                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                 {% endif %}
+            </div>
+        </nav>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const subcountySelect = document.getElementById('id_sub_county');
+    const wardSelect = document.getElementById('id_ward');
+    // Define the URL for fetching wards dynamically using the existing API endpoint
+    const loadWardsUrl = "{% url 'locations:api_ward_list' %}"; // Use the existing API endpoint
+    // Store the initially selected ward value, if any
+    const initialWardValue = wardSelect ? wardSelect.value : null;
+
+    function updateWardOptions(wards) {
+        // Clear existing options (except the first placeholder if it exists)
+        const firstOption = wardSelect.options[0];
+        wardSelect.innerHTML = '';
+        if (firstOption && firstOption.value === '') {
+             wardSelect.appendChild(firstOption); // Keep the placeholder
+             firstOption.selected = true; // Reselect placeholder
+        } else {
+            // Add a default placeholder if none existed
+             const defaultOption = document.createElement('option');
+             defaultOption.value = '';
+             defaultOption.text = '---------'; // Or 'Select Ward'
+             wardSelect.appendChild(defaultOption);
+        }
+
+
+        // Add new options
+        wards.forEach(function(ward) {
+            const option = document.createElement('option');
+            option.value = ward.id;
+            option.text = ward.name;
+            // Reselect the initial ward if it matches
+            if (initialWardValue && ward.id.toString() === initialWardValue) {
+                 option.selected = true;
+            }
+            wardSelect.appendChild(option);
+        });
+
+        // Disable ward select if no wards are available (optional)
+        wardSelect.disabled = wards.length === 0 && !firstOption; // Disable if only placeholder is there
+    }
+
+    function fetchWards(subcountyId) {
+        console.log('fetchWards called with subcountyId:', subcountyId);
+        if (!subcountyId) {
+            updateWardOptions([]); // Clear wards if no subcounty is selected
+            wardSelect.disabled = true; // Also disable the ward select
+            return;
+        }
+
+        // Construct URL with query parameter
+        const url = `${loadWardsUrl}?subcounty=${subcountyId}`; // Use 'subcounty' parameter
+        console.log('Fetching URL:', url);
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data);
+                updateWardOptions(data); // API returns list directly: [...]
+            })
+            .catch(error => {
+                console.error('Error fetching wards:', error);
+                updateWardOptions([]); // Clear wards on error
+                wardSelect.disabled = true;
+            });
+    }
+
+    if (subcountySelect && wardSelect) {
+        subcountySelect.addEventListener('change', function() {
+            console.log('Subcounty selection changed to:', this.value);
+            fetchWards(this.value);
+        });
+
+        // Initial load: Trigger fetch if a subcounty is already selected on page load
+        if (subcountySelect.value) {
+            fetchWards(subcountySelect.value);
+        } else {
+             // If no subcounty is initially selected, ensure ward dropdown is empty and disabled
+             updateWardOptions([]);
+             wardSelect.disabled = true;
+        }
+    } else {
+        if (!subcountySelect) console.error("Subcounty select element (#id_subcounty) not found.");
+        if (!wardSelect) console.error("Ward select element (#id_ward) not found.");
+    }
+});
+</script>
+{% endblock %}

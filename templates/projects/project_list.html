@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Projects - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Responsive Table: Stack on small screens using Flexbox */
+    @media (max-width: 768px) {
+        thead {
+            display: none;
+        }
+        tbody, tr {
+             display: block;
+             width: 100%;
+        }
+        tr {
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            /* overflow: hidden; Removed to prevent clipping inside */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        td {
+            /* Use flexbox to position label and value */
+            display: flex;
+            justify-content: space-between; /* Push label and value apart */
+            align-items: center; /* Align items vertically */
+            padding: 0.75rem 1rem;
+            text-align: left; /* Align label text to the left */
+            position: relative; /* Keep for potential absolute elements inside */
+            border-bottom: 1px solid #e2e8f0; /* Separator lines */
+            min-height: 40px; /* Ensure minimum height */
+            flex-wrap: wrap; /* Allow wrapping if content is too long */
+        }
+        td:last-child {
+            border-bottom: none;
+        }
+        td:before {
+            content: attr(data-label); /* Use data-label for pseudo-header */
+            font-weight: 600;
+            color: #4a5568; /* gray-700 */
+            padding-right: 0.75rem; /* Space between label and value */
+            /* No absolute positioning, let flexbox handle layout */
+            flex-shrink: 0; /* Prevent label from shrinking */
+            align-self: center; /* Align label vertically */
+        }
+        /* Style the actual content value part */
+        td > * { /* General selector for direct children - value */
+            text-align: right; /* Align value to the right */
+            margin-left: auto; /* Push to the right */
+            word-wrap: break-word; /* Allow long values to wrap */
+            max-width: 65%; /* Limit value width, adjust as needed */
+            flex-grow: 1; /* Allow value to take space */
+        }
+        /* Make sure text nodes align right too if they are direct children */
+        td {
+             /* This targets text nodes directly inside td, less common */
+             /* text-align: right; might override :before alignment */
+        }
+
+        /* Specific adjustments for certain columns if needed */
+         td[data-label="Completion"] {
+            flex-wrap: nowrap; /* Prevent wrapping for progress bar layout */
+         }
+         td[data-label="Completion"] > div { /* The progress bar container */
+             width: 50%; /* Adjust width as needed */
+             max-width: 100px; /* Max width */
+             margin-left: auto;
+             display: inline-block; /* Keep inline */
+         }
+         td[data-label="Completion"] > span { /* The percentage text */
+             display: inline-block;
+             margin-left: 0.5rem; /* Space between bar and text */
+             text-align: right;
+             width: auto; /* Don't force full width */
+             max-width: none; /* Override general rule */
+             flex-grow: 0; /* Don't grow */
+         }
+         td[data-label="Action"] > a,
+         td[data-label="Action"] > span {
+            text-align: right;
+            display: inline-block;
+            max-width: none; /* Allow action text to take needed space */
+            flex-grow: 0;
+         }
+         /* Handle direct text content alignment (e.g., Location) */
+         /* We need to wrap the value in a span or div for flex alignment */
+         /* Alternatively, force right align on td and left on :before */
+         /* Let's try the latter: */
+         td {
+             /* ... existing td styles ... */
+             text-align: right; /* Default align for value */
+         }
+         td:before {
+             /* ... existing :before styles ... */
+              text-align: left; /* Ensure label is left-aligned */
+         }
+          td > * {
+              /* ... existing value styles ... */
+              text-align: right; /* Keep explicit right align */
+          }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {# Alpine.js scope for filter toggle #}
+    <div x-data="{ showFilters: false }">
+
+        {# Header Row: Title, Filter Button, Other Buttons #}
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900 mb-2 sm:mb-0">County Projects</h1>
+            <div class="flex items-center space-x-2">
+                {# Filter Button #}
+                <button @click="showFilters = !showFilters" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" type="button" style="background: rgb(147 52 232);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-1.5">
+                      <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 10 18.25v-5.757a2.25 2.25 0 0 0-.659-1.59L4.659 6.22A2.25 2.25 0 0 1 4 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
+                    </svg>
+                    Filters
+                </button>
+                {# Other Buttons (Export, Add New) #}
+                {# Export Button - Conditional #}
+                {% if show_departmental_export %}
+                     <a href="{% url 'projects:export_projects_excel' %}?{{ request.GET.urlencode }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        title="Export current view to Excel">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd" /></svg>
+                         Export
+                     </a>
+                 {% endif %}
+                 {# Add New Button - Conditional (Keep existing condition) #}
+                 {% if user.is_authenticated and user.role != 'public' %}
+                     <a href="{% url 'projects:project_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 -ml-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                         Add New Project
+                     </a>
+                 {% endif %}
+             </div>
+        </div>
+
+        {# Active Filter Badges Section - Placed between header and filter form #}
+        {% if active_filters %}
+            <div class="mb-4 mt-2 pt-3 pb-3 border-t border-b border-gray-200">
+                 <div class="flex flex-wrap items-center gap-2">
+                     <span class="text-sm font-medium text-gray-600 mr-2">Active Filters:</span>
+                     {% for filter in active_filters %}
+                         <span class="inline-flex items-center py-0.5 pl-2.5 pr-1 text-sm font-medium bg-blue-100 text-blue-700 rounded-full">
+                             {{ filter.label }}: {{ filter.value }}
+                             {# Link to remove this specific filter #}
+                             <a href="?{% for key, value in request.GET.items %}{% if key != filter.key and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}sort={{ current_sort.by }}&dir={{ current_sort.dir }}"
+                                class="flex-shrink-0 ml-1 h-4 w-4 rounded-full inline-flex items-center justify-center text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none focus:bg-blue-500 focus:text-white">
+                                 <span class="sr-only">Remove {{ filter.label }} filter</span>
+                                 <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8"><path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7"></path></svg>
+                             </a>
+                         </span>
+                     {% endfor %}
+                     {# Clear All link #}
+                     <a href="{% url 'projects:project_list' %}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline ml-2">Clear All Filters</a>
+                 </div>
+            </div>
+        {% endif %}
+
+        <!-- Collapsible Filter Panel -->
+        <div x-show="showFilters" x-transition
+             class="bg-gray-50 border border-gray-200 rounded-lg mb-6 overflow-hidden"
+             style="display: none;" {# Hide initially to prevent flash #}
+        >
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filter Projects</h3>
+                <form method="get" action="{% url 'projects:project_list' %}">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-2">
+                            <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
+                            <select name="department" id="department" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">All Departments</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if current_filters.department == dept.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ dept.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="subcounty" class="block text-sm font-medium text-gray-700">Sub-County</label>
+                            <select name="subcounty" id="subcounty" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">All Sub-Counties</option>
+                                {% for subcounty in subcounties %}
+                                    <option value="{{ subcounty.id }}" {% if current_filters.subcounty == subcounty.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ subcounty.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="ward" class="block text-sm font-medium text-gray-700">Ward</label>
+                            <select name="ward" id="ward" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">All Wards</option>
+                                {% for ward in wards %}
+                                    <option value="{{ ward.id }}" {% if current_filters.ward == ward.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ ward.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="id_status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="id_status" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="">All Statuses</option>
+                                {% for value, display in status_choices %}
+                                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="timeframe" class="block text-sm font-medium text-gray-700">Timeframe</label>
+                            <select name="timeframe" id="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                {# Choices populated from view #}
+                                {% for value, label in timeframe_choices %}
+                                    <option value="{{ value }}" {% if selected_timeframe == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="q" class="block text-sm font-medium text-gray-700">Search</label>
+                            <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="q" name="q"
+                                   placeholder="Search projects..." value="{{ current_filters.q|default:'' }}">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="contractor" class="block text-sm font-medium text-gray-700">Contractor</label>
+                            <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="contractor" name="contractor"
+                                   placeholder="Contractor name" value="{{ current_filters.contractor|default:'' }}">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="min_budget" class="block text-sm font-medium text-gray-700">Min Budget (KES)</label>
+                            <input type="number" step="any" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="min_budget" name="min_budget"
+                                   placeholder="e.g. 1000000" value="{{ current_filters.min_budget|default:'' }}">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="max_budget" class="block text-sm font-medium text-gray-700">Max Budget (KES)</label>
+                            <input type="number" step="any" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="max_budget" name="max_budget"
+                                   placeholder="e.g. 5000000" value="{{ current_filters.max_budget|default:'' }}">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="min_completion" class="block text-sm font-medium text-gray-700">Min Completion (%)</label>
+                            <input type="number" min="0" max="100" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="min_completion" name="min_completion"
+                                   placeholder="e.g. 30" value="{{ current_filters.min_completion|default:'' }}">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="max_completion" class="block text-sm font-medium text-gray-700">Max Completion (%)</label>
+                            <input type="number" min="0" max="100" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="max_completion" name="max_completion"
+                                   placeholder="e.g. 75" value="{{ current_filters.max_completion|default:'' }}">
+                        </div>
+                        <div>
+                            <label for="id_project_type" class="block text-sm font-medium text-gray-700">Project Type</label>
+                            <select id="id_project_type" name="project_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                <option value="">All Types</option>
+                                {% for value, display in project_type_choices %}
+                                    <option value="{{ value }}" {% if request.GET.project_type == value %}selected{% endif %}>{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="id_is_flagship" class="block text-sm font-medium text-gray-700">Flagship?</label>
+                            <select id="id_is_flagship" name="is_flagship" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                                {% for value, display in flagship_choices %}
+                                    {# Handle boolean comparison carefully #}
+                                    <option value="{{ value|lower }}" {% if request.GET.is_flagship|lower == value|lower %}selected{% endif %}>{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                         <a href="{% url 'projects:project_list' %}" class="mr-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Clear Filters</a>
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> {# End of Alpine.js scope #}
+
+    <!-- Projects List -->
+    <div class="flex flex-col">
+        <div class="-my-2 sm:-mx-6 lg:-mx-8">
+            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="shadow border-b border-gray-200 sm:rounded-lg"> <!-- Removed overflow-hidden -->
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                       <h3 class="text-lg leading-6 font-medium text-gray-900">ALL PROJECTS</h3>
+                       <div class="flex items-center">
+                           <form method="get" class="mr-3 flex items-center">
+                                <!-- Preserve all existing filters -->
+                                {% for key, value in current_filters.items %}
+                                    {% if key != 'per_page' and value %}
+                                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                    {% endif %}
+                                {% endfor %}
+
+                                <label for="per_page" class="mr-2 text-sm font-medium text-gray-700">Per page:</label>
+                                <select name="per_page" id="per_page" class="block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" onchange="this.form.submit()">
+                                    <option value="10" {% if current_filters.per_page == '10' %}selected{% endif %}>10</option>
+                                    <option value="20" {% if current_filters.per_page == '20' %}selected{% endif %}>20</option>
+                                    <option value="30" {% if current_filters.per_page == '30' %}selected{% endif %}>30</option>
+                                </select>
+                           </form>
+                       </div>
+                    </div>
+                    {% if projects %}
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                                        {% include 'partials/_sort_th.html' with column_key='name' column_label='Project Name' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                                        {% include 'partials/_sort_th.html' with column_key='department' column_label='Department' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                                        {% include 'partials/_sort_th.html' with column_key='location' column_label='Location' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                                        {% include 'partials/_sort_th.html' with column_key='status' column_label='Status' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                                        {% include 'partials/_sort_th.html' with column_key='budget' column_label='Budget (KES)' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                                        {% include 'partials/_sort_th.html' with column_key='completion' column_label='Completion' current_sort=current_sort current_filters=current_filters %}
+                                    </th>
+                                    {% if user.is_authenticated and user.role != 'public' %}
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">
+                                        Action
+                                    </th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for project in projects %}
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 relative group" data-label="Project Name">
+                                        <a href="{% url 'projects:project_detail' project.slug %}" class="text-indigo-600 hover:text-indigo-900 hover:underline truncate block max-w-xs">
+                                            {{ project.name|truncatechars:40 }}
+                                        </a>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50 whitespace-normal break-words rounded-lg bg-gray-800 py-1.5 px-3 font-sans text-xs font-normal text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-xs">
+                                            {{ project.name }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 relative group" data-label="Department">
+                                         <span class="truncate block max-w-[150px]">
+                                            {{ project.department.name|truncatechars:20 }}
+                                         </span>
+                                         <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50 whitespace-normal break-words rounded-lg bg-gray-800 py-1.5 px-3 font-sans text-xs font-normal text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-xs">
+                                            {{ project.department.name }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="Location">
+                                        {{ project.ward.name }}, {{ project.ward.subcounty.name }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ project.get_status_badge_class }}">
+                                            {{ project.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" data-label="Budget (KES)">
+                                        {{ project.budget_allocation|intcomma }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="Completion">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                            {% with percentage=project.percentage_complete|default:0 %}
+                                            <div class="h-2.5 rounded-full {% if percentage >= 100 %}bg-green-600{% elif percentage >= 75 %}bg-blue-600{% elif percentage >= 50 %}bg-yellow-400{% elif percentage >= 25 %}bg-orange-500{% else %}bg-red-600{% endif %}"
+                                                 style="width: {{ percentage }}%"></div>
+                                            {% endwith %}
+                                        </div>
+                                        <span class="text-xs font-medium text-gray-500">{{ project.percentage_complete|default:0 }}%</span>
+                                    </td>
+                                    {% if user.is_authenticated and user.role != 'public' %}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="Action">
+                                        {% if user.role == 'executive' or user.department == project.department %}
+                                            <a href="{% url 'projects:project_update' project.slug %}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                        {% else %}
+                                            <span class="text-gray-400">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        {% if projects.paginator.num_pages > 1 %}
+                        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                {% if projects.has_previous %}
+                                <a href="?{% for key, value in current_filters.items %}{% if key != 'page' and value %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ projects.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Previous
+                                </a>
+                                {% else %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-white cursor-not-allowed">
+                                    Previous
+                                </span>
+                                {% endif %}
+                                {% if projects.has_next %}
+                                <a href="?{% for key, value in current_filters.items %}{% if key != 'page' and value %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ projects.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Next
+                                </a>
+                                {% else %}
+                                 <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-white cursor-not-allowed">
+                                    Next
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing
+                                        <span class="font-medium">{{ projects.start_index }}</span>
+                                        to
+                                        <span class="font-medium">{{ projects.end_index }}</span>
+                                        of
+                                        <span class="font-medium">{{ projects.paginator.count }}</span>
+                                        results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        {% if projects.has_previous %}
+                                        <a href="?{% for key, value in current_filters.items %}{% if key != 'page' and value %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ projects.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <!-- Heroicon name: solid/chevron-left -->
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        {% endif %}
+                                        {% for num in projects.paginator.page_range %}
+                                            {% if projects.number == num %}
+                                            <span aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                {{ num }}
+                                            </span>
+                                            {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+                                            <a href="?{% for key, value in current_filters.items %}{% if key != 'page' and value %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                {{ num }}
+                                            </a>
+                                            {% elif num == projects.number|add:'-3' or num == projects.number|add:'3' %}
+                                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                                ...
+                                            </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if projects.has_next %}
+                                        <a href="?{% for key, value in current_filters.items %}{% if key != 'page' and value %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ projects.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <!-- Heroicon name: solid/chevron-right -->
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        {% endif %}
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="px-6 py-12 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
+                            <p class="mt-1 text-sm text-gray-500">No projects match the current filters. Try clearing the filters.</p>
+                            <div class="mt-6">
+                                <a href="{% url 'projects:project_list' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Clear Filters
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle dynamic loading of wards based on subcounty selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const subcountySelect = document.getElementById('subcounty');
+        const wardSelect = document.getElementById('ward');
+
+        subcountySelect.addEventListener('change', function() {
+            const subcountyId = this.value;
+
+            // Clear ward selection
+            wardSelect.innerHTML = '<option value="">All Wards</option>';
+
+            if (subcountyId) {
+                // Fetch wards for the selected subcounty
+                fetch(`/api/wards/?subcounty=${subcountyId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(ward => {
+                            const option = document.createElement('option');
+                            option.value = ward.id;
+                            option.textContent = ward.name;
+                            wardSelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}

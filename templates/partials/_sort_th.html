@@ -1,0 +1,34 @@
+{% comment %}
+Reusable template for sortable table headers.
+
+Expects the following context variables:
+- column_key: The key used in the 'sort' query parameter (e.g., 'name', 'budget').
+- column_label: The display text for the header (e.g., 'Project Name', 'Budget (KES)').
+- current_sort: A dictionary with 'by' and 'dir' keys indicating the current sort state.
+- current_filters: A dictionary of the current filter parameters (excluding 'page', 'sort', 'dir').
+{% endcomment %}
+
+{% spaceless %}
+{# Determine next sort direction #}
+{% if current_sort.by == column_key and current_sort.dir == 'asc' %}
+    {% with next_dir='desc' sort_icon='▲' %}
+    <a href="?sort={{ column_key }}&dir={{ next_dir }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+       class="flex items-center text-gray-600 hover:text-gray-900 group">
+        {{ column_label }}
+        <span class="ml-1 text-xs text-gray-400 group-hover:text-gray-600">{{ sort_icon }}</span>
+    </a>
+    {% endwith %}
+{% else %}
+    {% with next_dir='asc' sort_icon='▼' %}
+    <a href="?sort={{ column_key }}&dir={{ next_dir }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+       class="flex items-center text-gray-500 hover:text-gray-900 group">
+        {{ column_label }}
+        {% if current_sort.by == column_key %}
+            <span class="ml-1 text-xs text-gray-600">{{ sort_icon }}</span>
+        {% else %}
+             <span class="ml-1 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{{ sort_icon }}</span> {# Show dimmed arrow on hover for non-active columns #}
+        {% endif %}
+    </a>
+    {% endwith %}
+{% endif %}
+{% endspaceless %}

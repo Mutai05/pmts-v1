@@ -1,0 +1,44 @@
+# App settings
+app_name: county_pmts
+app_user: django
+app_group: django
+app_home: /var/www/{{ app_name }}
+app_env_dir: "{{ app_home }}/env"
+app_src_dir: "{{ app_home }}/src"
+app_logs_dir: "{{ app_home }}/logs"
+app_media_dir: "{{ app_src_dir }}/media"
+app_static_dir: "{{ app_src_dir }}/staticfiles"
+
+# Git repository
+git_repo: git@github.com:iankigen/county_pmts.git
+git_branch: main
+git_ssh_key: "~/.ssh/git_server"
+
+# Django settings
+django_settings_module: "county_pmts.settings"
+django_secret_key: "{{ SECRET_KEY }}"
+is_production: "True"
+django_allowed_hosts: "pmts.stuxnet.ltd"
+
+# Database settings
+db_name: "{{ app_name }}"
+db_user: "{{ app_name }}"
+db_password: "{{ DB_PASSWORD }}"
+db_host: "localhost"
+
+# Gunicorn settings
+gunicorn_user: "{{ app_user }}"
+gunicorn_group: "{{ app_group }}"
+gunicorn_workers: 3
+gunicorn_bind: "unix:{{ app_home }}/gunicorn.sock"
+
+# Nginx settings
+nginx_user: www-data             # Common for Debian/Ubuntu
+local_cert_src_dir: "./certificates"
+nginx_ssl_dir: "/etc/nginx/ssl"
+cert_file_to_copy: "stuxnet.ltd.crt"
+cert_key_file_to_copy: "stuxnet.ltd.key"
+local_key_file_to_copy: "{{ local_cert_src_dir }}/{{ cert_key_file_to_copy }}"
+local_cert_file_to_copy: "{{ local_cert_src_dir }}/{{ cert_file_to_copy }}"
+nginx_ssl_cert_file: "{{ nginx_ssl_dir }}/{{ cert_file_to_copy }}"
+nginx_ssl_key_file: "{{ nginx_ssl_dir }}/{{ cert_key_file_to_copy }}"

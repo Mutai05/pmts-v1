@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Executive Dashboard - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<!-- Add any specific CSS needs for this page if necessary -->
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ showExtraFilters: false }">
+    <h1 class="text-3xl font-bold leading-tight text-gray-900 mb-2">Executive Dashboard</h1>
+    <p class="text-sm text-gray-500 mb-4">Comprehensive overview of projects across Trans-Nzoia County.</p>
+
+    <!-- Timeframe Filter & Extra Filter Toggle -->
+    <div class="bg-white shadow sm:rounded-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <form method="get" class="flex items-center space-x-4">
+            <label for="timeframe" class="block text-sm font-medium text-gray-700">Select Timeframe:</label>
+            <select name="timeframe" id="timeframe"
+                    onchange="this.form.submit()" {# Basic JS submit on change #}
+                    class="block w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                {% for value, label in timeframe_choices %}
+                    <option value="{{ value }}" {% if selected_timeframe == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <noscript><button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/80">Apply</button></noscript>
+             <span class="text-sm text-gray-600">(Currently viewing: {{ current_timeframe_label }})</span>
+        </form>
+        <button @click="showExtraFilters = !showExtraFilters" class="flex items-center rounded-md bg-gradient-to-tr from-slate-800 to-slate-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" style="background: rgb(51 65 85); margin: 0 1px;">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-1.5">
+                 <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 10 18.25v-5.757a2.25 2.25 0 0 0-.659-1.59L4.659 6.22A2.25 2.25 0 0 1 4 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
+             </svg>
+             Filter by Location/Department
+         </button>
+    </div>
+
+    {# Active Filter Badges Section #}
+    {% if active_filters %}
+        <div class="mb-4 mt-2 pt-3 pb-3 border-t border-b border-gray-200">
+             <div class="flex flex-wrap items-center gap-2">
+                 <span class="text-sm font-medium text-gray-600 mr-2">Active Filters:</span>
+                 {% for filter in active_filters %}
+                     <span class="inline-flex items-center py-0.5 pl-2.5 pr-1 text-sm font-medium bg-blue-100 text-blue-700 rounded-full">
+                         {{ filter.label }}: {{ filter.value }}
+                         {# Link to remove this specific filter #}
+                         {# Note: We preserve all *other* active GET params #}
+                         <a href="?{% for key, value in request.GET.items %}{% if key != filter.key %}{{ key }}={{ value }}&{% endif %}{% endfor %}"
+                            class="flex-shrink-0 ml-1 h-4 w-4 rounded-full inline-flex items-center justify-center text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none focus:bg-blue-500 focus:text-white">
+                             <span class="sr-only">Remove {{ filter.label }} filter</span>
+                             <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8"><path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7"></path></svg>
+                         </a>
+                     </span>
+                 {% endfor %}
+                 {# Clear All (keep only timeframe maybe?) or clear everything? #}
+                 {# Option 1: Clear all including timeframe #}
+                 {# <a href="{% url 'dashboard:executive_dashboard' %}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline ml-2">Clear All Filters</a> #}
+                 {# Option 2: Clear only location/dept filters, keep timeframe #}
+                 <a href="?timeframe={{ selected_timeframe }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline ml-2">Clear Location/Dept Filters</a>
+             </div>
+        </div>
+    {% endif %}
+
+    <!-- Collapsible Extra Filters -->
+    <div x-show="showExtraFilters" x-transition
+         class="bg-gray-50 border border-gray-200 rounded-lg mb-6 overflow-hidden"
+         style="display: none;" {# Hide initially #}
+    >
+         <div class="p-4 sm:p-6">
+             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filter Financial Trends & Stats</h3>
+              <form method="get">
+                 <input type="hidden" name="timeframe" value="{{ selected_timeframe }}"> {# Preserve timeframe #}
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     {# Department Filter #}
+                      <div>
+                         <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
+                         <select name="department" id="department"
+                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                             <option value="">All Departments</option>
+                             {% for dept in all_departments %}
+                                 <option value="{{ dept.id }}" {% if selected_department_id == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                             {% endfor %}
+                         </select>
+                     </div>
+                      {# SubCounty Filter #}
+                      <div>
+                         <label for="subcounty" class="block text-sm font-medium text-gray-700">Sub-County</label>
+                         <select name="subcounty" id="subcounty"
+                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                             <option value="">All Sub-Counties</option>
+                             {% for sc in all_subcounties %}
+                                 <option value="{{ sc.id }}" {% if selected_subcounty_id == sc.id|stringformat:"s" %}selected{% endif %}>{{ sc.name }}</option>
+                             {% endfor %}
+                         </select>
+                     </div>
+                      {# Ward Filter #}
+                      <div>
+                         <label for="ward" class="block text-sm font-medium text-gray-700">Ward</label>
+                         <select name="ward" id="ward"
+                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                             <option value="">All Wards</option>
+                             {% for ward in all_wards %}
+                                 <option value="{{ ward.id }}" data-subcounty-id="{{ ward.subcounty_id }}" {% if selected_ward_id == ward.id|stringformat:"s" %}selected{% endif %}>{{ ward.subcounty.name }} - {{ ward.name }}</option>
+                             {% endfor %}
+                         </select>
+                     </div>
+                 </div>
+                 <div class="mt-4 flex justify-end">
+                    <a href="{% url 'dashboard:executive_dashboard' %}?timeframe={{ selected_timeframe }}" class="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Clear Location/Dept Filters</a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Apply</button>
+                 </div>
+              </form>
+         </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="flex flex-wrap gap-3">
+            {# Add Project #}
+             <a href="{% url 'projects:project_create' %}" class="inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 -ml-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                Add Project
+            </a>
+            {# View All Projects (Filtered by Timeframe) #}
+            <a href="{% url 'projects:project_list' %}?timeframe={{ selected_timeframe }}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="background: rgb(78 89 104); margin: 0 1px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 -ml-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                </svg>
+                  View All Projects
+              </a>
+            {# View All Feedback (Filtered by Timeframe) #}
+             <a href="{% url 'projects:feedback_dashboard' %}?time_range=all{% if selected_subcounty_id %}&sub_county={{ selected_subcounty_id }}{% endif %}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" class="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2" style="background: rgb(147 52 232); margin: 0 1px;">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 -ml-1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                 </svg>
+                  View All Feedback
+              </a>
+        </div>
+    </div>
+
+    <!-- Main Stats Grid -->
+    <div class="mb-8">
+        <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Total Projects</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ project_stats.total }}</dd>
+                <div class="mt-3 flex justify-between text-sm">
+                    <div class="text-center">
+                        <span class="font-medium text-green-600">{{ project_stats.completed }}</span>
+                        <span class="text-gray-500">Completed</span>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-medium text-blue-600">{{ project_stats.ongoing }}</span>
+                        <span class="text-gray-500">Ongoing</span>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-medium text-red-600">{{ project_stats.stalled }}</span>
+                        <span class="text-gray-500">Stalled</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Total Budget Allocation</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">KES {{ budget_stats.total_allocation|intcomma }}</dd>
+                <div class="mt-3">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div class="bg-primary h-2.5 rounded-full" style="width: {{ budget_stats.absorption_rate|default:0 }}%"></div>
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">{{ budget_stats.absorption_rate|floatformat:1 }}% Budget Absorption Rate</p>
+                </div>
+            </div>
+
+             <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Total Expenditure</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">KES {{ budget_stats.total_expenditure|intcomma }}</dd>
+                 <div class="mt-3 flex justify-between text-sm">
+                    <div class="text-center">
+                        <span class="font-medium text-gray-900">{{ budget_stats.total_allocation|intcomma }}</span>
+                        <span class="text-gray-500">Allocated</span>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-medium text-gray-900">{{ budget_stats.total_expenditure|intcomma }}</span>
+                        <span class="text-gray-500">Spent</span>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-medium text-primary">{{ budget_stats.absorption_rate|floatformat:1 }}%</span>
+                        <span class="text-gray-500">Rate</span>
+                    </div>
+                </div>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Project Status Cards -->
+    <div class="mb-8">
+        <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 border-l-4 border-green-500">
+                <dt>
+                    <div class="absolute rounded-md bg-green-500 p-3">
+                        <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Completed</p>
+                </dt>
+                <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ project_stats.completed }}
+                    </p>
+                     <!-- Optional: Add change % here -->
+                    <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <a href="{% url 'projects:project_list' %}?status=completed&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" target="_blank" class="font-medium text-primary hover:text-primary/80">
+                                View Details<span class="sr-only"> Completed projects</span>
+                            </a>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 border-l-4 border-blue-500">
+                <dt>
+                    <div class="absolute rounded-md bg-blue-500 p-3">
+                         <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5V18M15 7.5V18M3 16.811V8.69c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 010 1.954l-7.108 4.061A1.125 1.125 0 013 16.811z" />
+                         </svg>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Ongoing</p>
+                </dt>
+                 <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ project_stats.ongoing }}
+                    </p>
+                    <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <a href="{% url 'projects:project_list' %}?status=ongoing&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" target="_blank" class="font-medium text-primary hover:text-primary/80">
+                                View Details<span class="sr-only"> Ongoing projects</span>
+                            </a>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+
+             <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 border-l-4 border-red-500">
+                <dt>
+                    <div class="absolute rounded-md bg-red-500 p-3">
+                         <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                         </svg>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Stalled</p>
+                </dt>
+                 <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ project_stats.stalled }}
+                    </p>
+                    <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <a href="{% url 'projects:project_list' %}?status=stalled&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" target="_blank" class="font-medium text-primary hover:text-primary/80">
+                                View Details<span class="sr-only"> Stalled projects</span>
+                            </a>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 border-l-4 border-cyan-500">
+                <dt>
+                    <div class="absolute rounded-md bg-cyan-500 p-3">
+                         <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                        </svg>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Procurement</p>
+                </dt>
+                 <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ project_stats.under_procurement }}
+                    </p>
+                    <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <a href="{% url 'projects:project_list' %}?status=under_procurement&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" target="_blank" class="font-medium text-primary hover:text-primary/80">
+                                View Details<span class="sr-only"> Under Procurement projects</span>
+                            </a>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 border-l-4 border-gray-500">
+                <dt>
+                    <div class="absolute rounded-md bg-gray-500 p-3">
+                         <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Not Started</p>
+                </dt>
+                 <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-semibold text-gray-900">
+                        {{ project_stats.not_started }}
+                    </p>
+                    <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="text-sm">
+                            <a href="{% url 'projects:project_list' %}?status=not_started&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" target="_blank" class="font-medium text-primary hover:text-primary/80">
+                                View Details<span class="sr-only"> Not Started projects</span>
+                            </a>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Financial Trend Chart -->
+    <div class="mb-8 bg-white shadow overflow-hidden sm:rounded-lg">
+         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <div>
+                 <h2 class="text-xl font-semibold text-gray-900">Financial Trends (Budget vs Expenditure by Year)</h2>
+                 <p class="mt-1 text-sm text-gray-500">Filtered by selected timeframe{% if selected_department_id %} and Department{% endif %}{% if selected_subcounty_id %} and Sub-County{% endif %}{% if selected_ward_id %} and Ward{% endif %}.</p>
+             </div>
+         </div>
+        <div class="p-6">
+            <div class="h-96">
+                 <canvas id="financialTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departmental Performance Table -->
+    <div class="mb-8" id="department-performance-table">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Departmental Performance Summary</h2>
+        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Department</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project Count</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Avg. Completion</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Allocated (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Spent (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 pr-4 text-left text-sm font-semibold text-gray-900 sm:pr-6">Absorption Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for dept in department_stats %}
+                    <tr>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            <a href="{% url 'projects:project_list' %}?department={{ dept.id }}&timeframe={{ selected_timeframe }}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                {{ dept.name }}
+                            </a>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ dept.project_count }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ dept.avg_completion|floatformat:1|default:"-" }}%</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ dept.total_budget|intcomma }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ dept.total_expenditure|intcomma }}</td>
+                        <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium sm:pr-6 text-right">
+                            {% with rate=dept.absorption_rate_expr|default:0 %}
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {% if rate > 75 %} bg-green-100 text-green-800
+                                {% elif rate > 40 %} bg-yellow-100 text-yellow-800
+                                {% else %} bg-red-100 text-red-800 {% endif %}">
+                                    {{ rate|floatformat:1 }}%
+                            </span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No departmental performance data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sub-County Performance Table -->
+    <div class="mb-8" id="subcounty-performance-table">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Sub-County Performance Summary</h2>
+        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+             <table class="min-w-full divide-y divide-gray-200">
+                 <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Sub-County</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project Count</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Avg. Completion</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Allocated (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Spent (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 pr-4 text-left text-sm font-semibold text-gray-900 sm:pr-6">Absorption Rate (%)</th>
+                    </tr>
+                 </thead>
+                 <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for sc in subcounty_stats %}
+                    <tr>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                             <a href="{% url 'projects:project_list' %}?subcounty={{ sc.id }}&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_ward_id %}&ward={{ selected_ward_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                {{ sc.name }}
+                            </a>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ sc.project_count }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ sc.avg_completion|floatformat:1|default:"-" }}%</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ sc.total_budget|intcomma }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ sc.total_expenditure|intcomma }}</td>
+                        <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium sm:pr-6 text-right">
+                            {% with rate=sc.absorption_rate_expr|default:0 %}
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {% if rate > 75 %} bg-green-100 text-green-800
+                                {% elif rate > 40 %} bg-yellow-100 text-yellow-800
+                                {% else %} bg-red-100 text-red-800 {% endif %}">
+                                    {{ rate|floatformat:1 }}%
+                                </span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No Sub-County performance data available for this timeframe.</td>
+                    </tr>
+                    {% endfor %}
+                 </tbody>
+             </table>
+        </div>
+    </div>
+
+     <!-- Ward Performance Table -->
+    <div class="mb-8" id="ward-performance-table">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Ward Performance Summary</h2>
+        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+             <table class="min-w-full divide-y divide-gray-200">
+                 <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Sub-County</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ward</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project Count</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Avg. Completion</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Allocated (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Budget Spent (KES)</th>
+                        <th scope="col" class="px-3 py-3.5 pr-4 text-left text-sm font-semibold text-gray-900 sm:pr-6">Absorption Rate (%)</th>
+                    </tr>
+                 </thead>
+                 <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for ward in ward_stats %}
+                    <tr>
+                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ ward.subcounty__name }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <a href="{% url 'projects:project_list' %}?ward={{ ward.id }}&timeframe={{ selected_timeframe }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}{% if selected_subcounty_id %}&subcounty={{ selected_subcounty_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                {{ ward.name }}
+                            </a>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ ward.project_count }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">{{ ward.avg_completion|floatformat:1|default:"-" }}%</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ ward.total_budget|intcomma }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ ward.total_expenditure|intcomma }}</td>
+                        <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium sm:pr-6 text-right">
+                            {% with rate=ward.absorption_rate_expr|default:0 %}
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {% if rate > 75 %} bg-green-100 text-green-800
+                                {% elif rate > 40 %} bg-yellow-100 text-yellow-800
+                                {% else %} bg-red-100 text-red-800 {% endif %}">
+                                    {{ rate|floatformat:1 }}%
+                                 </span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No Ward performance data available for this timeframe.</td>
+                    </tr>
+                    {% endfor %}
+                 </tbody>
+             </table>
+        </div>
+    </div>
+
+    <!-- Project Health Indicators -->
+    <div class="mb-8">
+         <div class="flex justify-between items-center mb-4">
+             <div>
+                 <h2 class="text-xl font-semibold text-gray-900">Project Health Indicators</h2>
+                 <p class="text-sm text-gray-500">Based on timeframe: {{ current_timeframe_label }}{% if selected_department_id %} and Department{% endif %}{% if selected_subcounty_id %} and Sub-County{% endif %}{% if selected_ward_id %} and Ward{% endif %}.</p>
+             </div>
+         </div>
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+             {# Delayed Projects Table #}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-yellow-300 bg-yellow-50">
+                    <h3 class="text-lg leading-6 font-medium text-yellow-800">Delayed Projects</h3>
+                     <p class="mt-1 max-w-2xl text-sm text-yellow-700">Projects past their end date but not marked Completed.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <ul role="list" class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        {% for project in delayed_projects %}
+                            <li class="px-4 py-3 sm:px-6 hover:bg-gray-50">
+                                <a href="{% url 'projects:project_detail' project.slug %}" class="block">
+                                    <p class="text-sm font-medium text-primary truncate hover:underline">{{ project.name }}</p>
+                                    <p class="text-xs text-gray-500">Dept: {{ project.department__name }}</p>
+                                    <p class="text-xs text-gray-500">Status: {{ project.status }} | Ended: {{ project.end_date|date:"Y-m-d" }}</p>
+                                </a>
+                            </li>
+                        {% empty %}
+                             <li class="px-4 py-4 sm:px-6 text-center text-sm text-gray-500">No delayed projects found.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {# Stalled Projects Table #}
+             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-red-300 bg-red-50">
+                    <h3 class="text-lg leading-6 font-medium text-red-800">Stalled Projects</h3>
+                     <p class="mt-1 max-w-2xl text-sm text-red-700">Projects explicitly marked as Stalled.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <ul role="list" class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        {% for project in stalled_projects %}
+                             <li class="px-4 py-3 sm:px-6 hover:bg-gray-50">
+                                <a href="{% url 'projects:project_detail' project.slug %}" class="block">
+                                    <p class="text-sm font-medium text-primary truncate hover:underline">{{ project.name }}</p>
+                                    <p class="text-xs text-gray-500">Dept: {{ project.department__name }}</p>
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li class="px-4 py-4 sm:px-6 text-center text-sm text-gray-500">No stalled projects found.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {# Over Budget Projects Table #}
+             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-orange-300 bg-orange-50">
+                    <h3 class="text-lg leading-6 font-medium text-orange-800">Over Budget Projects</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-orange-700">Expenditure exceeds allocation.</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <ul role="list" class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        {% for project in over_budget_projects %}
+                             <li class="px-4 py-3 sm:px-6 hover:bg-gray-50">
+                                 <a href="{% url 'projects:project_detail' project.slug %}" class="block">
+                                    <p class="text-sm font-medium text-primary truncate hover:underline">{{ project.name }}</p>
+                                    <p class="text-xs text-gray-500">Dept: {{ project.department__name }}</p>
+                                    <p class="text-xs text-gray-500">Alloc: {{ project.budget_allocation|intcomma }} | Spent: {{ project.expenditure|intcomma }}</p>
+                                </a>
+                            </li>
+                         {% empty %}
+                            <li class="px-4 py-4 sm:px-6 text-center text-sm text-gray-500">No over budget projects found.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Citizen Sentiment Section -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                 <h2 class="text-xl font-semibold text-gray-900">Citizen Sentiment (Average Feedback Rating)</h2>
+                 <p class="text-sm text-gray-500">Based on timeframe: {{ current_timeframe_label }}{% if selected_department_id %} and Department{% endif %}{% if selected_subcounty_id %} and Sub-County{% endif %}{% if selected_ward_id %} and Ward{% endif %}.</p>
+             </div>
+         </div>
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+             {# Sentiment by Ward #}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6">
+                     <h3 class="text-lg leading-6 font-medium text-gray-900">Sentiment by Ward</h3>
+                </div>
+                <div class="border-t border-gray-200">
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full py-2 align-middle">
+                             <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Sub-County</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ward</th>
+                                        <th scope="col" class="px-3 py-3.5 pr-4 text-left text-sm font-semibold text-gray-900 sm:pr-6">Average Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                     {% for ward_sentiment in sentiment_by_ward %}
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                             {# Link to Feedback Dashboard, filtered by SubCounty & maybe Dept #}
+                                             <a href="{% url 'projects:feedback_dashboard' %}?sub_county={{ ward_sentiment.sub_county_id }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                                {{ ward_sentiment.sub_county__name }}
+                                            </a>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                             {# Link to Feedback Dashboard, filtered by Ward, SubCounty & maybe Dept #}
+                                             <a href="{% url 'projects:feedback_dashboard' %}?sub_county={{ ward_sentiment.sub_county_id }}&ward={{ ward_sentiment.ward_id }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                                {{ ward_sentiment.ward__name }}
+                                            </a>
+                                        </td>
+                                        <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium sm:pr-6">
+                                            {% if ward_sentiment.rating_verbose is not None %}
+                                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ ward_sentiment.rating_badge_class }}">
+                                                    {{ ward_sentiment.rating_verbose }}
+                                                 </span>
+                                            {% else %}
+                                                <span class="text-gray-500 text-xs italic">No ratings</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No feedback data available for sentiment analysis.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                         </div>
+                     </div>
+                </div>
+            </div>
+            {# Sentiment by Subcounty #}
+             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6">
+                     <h3 class="text-lg leading-6 font-medium text-gray-900">Sentiment by Subcounty</h3>
+                </div>
+                <div class="border-t border-gray-200">
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full py-2 align-middle">
+                             <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Sub-County</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Average Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                     {% for subcounty_sentiment in sentiment_by_subcounty %}
+                                    <tr>
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                             {# Link to Feedback Dashboard, filtered by SubCounty & maybe Dept #}
+                                             <a href="{% url 'projects:feedback_dashboard' %}?sub_county={{ subcounty_sentiment.sub_county_id }}{% if selected_department_id %}&department={{ selected_department_id }}{% endif %}" class="text-primary hover:text-primary/80 hover:underline">
+                                                {{ subcounty_sentiment.sub_county__name }}
+                                            </a>
+                                        </td>
+                                        <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium sm:pr-6">
+                                            {% if subcounty_sentiment.rating_verbose is not None %}
+                                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ subcounty_sentiment.rating_badge_class }}">
+                                                    {{ subcounty_sentiment.rating_verbose }}
+                                                 </span>
+                                            {% else %}
+                                                <span class="text-gray-500 text-xs italic">No ratings</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No feedback data available for sentiment analysis.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const trendCtx = document.getElementById('financialTrendChart').getContext('2d');
+        if (trendCtx) {
+             const financialTrendChart = new Chart(trendCtx, {
+                type: 'line',
+            data: {
+                    labels: {{ financial_trend_chart_data.labels|safe }},
+                    datasets: [
+                        {
+                            label: 'Budget Allocation',
+                            data: {{ financial_trend_chart_data.allocation_data|safe }},
+                            borderColor: '#3B82F6', // blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Expenditure',
+                            data: {{ financial_trend_chart_data.expenditure_data|safe }},
+                            borderColor: '#BF5F0B', // primary
+                            backgroundColor: 'rgba(191, 95, 11, 0.1)',
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                // Format Y-axis ticks as currency
+                                callback: function(value, index, values) {
+                                    return 'KES ' + value.toLocaleString('en-KE');
+                                }
+                            }
+                        }
+                    },
+                 plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += 'KES ' + context.parsed.y.toLocaleString('en-KE');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Cascading dropdown logic for Sub-County and Ward
+        const subcountySelect = document.getElementById('subcounty');
+        const wardSelect = document.getElementById('ward');
+        const wardOptions = Array.from(wardSelect.options);
+
+        function filterWards() {
+            const selectedSubCountyId = subcountySelect.value;
+            wardSelect.value = ''; // Reset selection to 'All Wards'
+
+            // Handle the 'All Wards' option (index 0) - always visible and enabled
+            if (wardOptions.length > 0) {
+                wardOptions[0].style.display = '';
+                wardOptions[0].disabled = false;
+            }
+
+            // Iterate through actual ward options (starting from index 1)
+            for (let i = 1; i < wardOptions.length; i++) {
+                const option = wardOptions[i];
+                const wardSubCountyId = option.getAttribute('data-subcounty-id');
+
+                // Show option ONLY if a specific subcounty is selected AND it matches
+                if (selectedSubCountyId && wardSubCountyId === selectedSubCountyId) {
+                    option.style.display = ''; // Show option
+                    option.disabled = false;
+                } else {
+                    option.style.display = 'none'; // Hide option
+                    option.disabled = true;
+                }
+            }
+             // Optional: Disable the select entirely if no sub-county is chosen
+             // wardSelect.disabled = !selectedSubCountyId;
+        }
+
+        if (subcountySelect && wardSelect) {
+            subcountySelect.addEventListener('change', filterWards);
+            // Initial filter on page load
+            filterWards();
+        }
+    });
+</script>
+{% endblock %}

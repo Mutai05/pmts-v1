@@ -1,0 +1,769 @@
+{% extends 'base.html' %}
+{% load humanize project_tags %}
+
+{% block title %}{{ project.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div
+     class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Header Section -->
+    <div class="md:flex md:items-center md:justify-between mb-6 pb-4 border-b border-gray-200">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900 sm:truncate">{{ project.name }}</h1>
+            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+                <div class="mt-2 flex items-center text-sm text-gray-500">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ project.get_status_badge_class }} mr-2">
+                        {{ project.get_status_display }}
+                    </span>
+                </div>
+                <div class="mt-2 flex items-center text-sm text-gray-500">
+                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    Financial Year: {{ project.financial_year }}
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+            {% if user.is_authenticated and user.role != 'public' %}
+                {% if user.role == 'executive' or user.department == project.department %}
+                    <a href="{% url 'projects:project_manage_photos' project.slug %}"
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                       <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                       </svg>
+                       Manage Photos
+                    </a>
+                     <a href="{% url 'projects:project_progress' project.slug %}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                         <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m0-3l-3-3m0 0l-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75" />
+                         </svg>
+                       Update Progress
+                    </a>
+                    <a href="{% url 'projects:project_update' project.slug %}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        Edit Project
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Project Details, Progress -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Project Details Card -->
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Project Details</h3>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                    <dl class="sm:divide-y sm:divide-gray-200">
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Department</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <a href="{% url 'projects:project_list' %}?department={{ project.department.id }}" class="text-primary hover:text-primary/80 hover:underline">
+                                    {{ project.department.name }}
+                                </a>
+                            </dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Location</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ project.ward.name }}, {{ project.ward.subcounty.name }}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Project Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ project.get_project_type_display }}
+                                {% if project.is_flagship %}
+                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Flagship</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Timeline</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ project.start_date }} to {{ project.end_date }}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Contractor</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ project.contractor_name|default:"Not specified" }}
+                                {% if request.user.is_executive or request.user.is_departmental and request.user.department == project.department %}
+                                    {% if project.contractor_phone %}<br><span class="text-xs text-gray-500">Phone: {{ project.contractor_phone }}</span>{% endif %}
+                                    {% if project.contractor_email %}<br><span class="text-xs text-gray-500">Email: <a href="mailto:{{ project.contractor_email }}" class="text-primary hover:underline">{{ project.contractor_email }}</a></span>{% endif %}
+                                    {% if project.contractor_address %}<br><span class="text-xs text-gray-500">Address: {{ project.contractor_address|linebreaksbr }}</span>{% endif %}
+                                {% endif %}
+                            </dd>
+                        </div>
+                         <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Implementing Agency</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ project.implementing_agency }}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Funding Source</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ project.get_funding_source_display }}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Description</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 prose max-w-none">{{ project.description|linebreaks }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Progress and Challenges Card -->
+            <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Progress & Challenges</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                     <h4 class="text-sm font-medium text-gray-500 mb-1">Project Completion</h4>
+                    <div class="flex items-center mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mr-3">
+                             {% with percentage=project.percentage_complete|default:0 %}
+                                <div class="h-2.5 rounded-full {% if percentage >= 100 %}bg-green-600{% elif percentage >= 75 %}bg-blue-600{% elif percentage >= 50 %}bg-yellow-400{% elif percentage >= 25 %}bg-orange-500{% else %}bg-red-600{% endif %}"
+                                     style="width: {{ percentage }}%"></div>
+                            {% endwith %}
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">{{ project.percentage_complete|default:0 }}%</span>
+                    </div>
+
+                    {% if project.challenges %}
+                        <h4 class="text-sm font-medium text-gray-500 mt-6 mb-1">Challenges</h4>
+                        <div class="prose max-w-none text-sm text-gray-900">{{ project.challenges|linebreaks }}</div>
+                    {% endif %}
+
+                    <h4 class="text-sm font-medium text-gray-500 mt-6 mb-3">Progress Updates</h4>
+                    {% if progress_updates %}
+                        <ul role="list" class="space-y-4">
+                            {% for update in progress_updates %}
+                                <li class="bg-gray-50 px-4 py-4 sm:rounded-md sm:border sm:border-gray-200">
+                                    <div class="sm:flex sm:items-start sm:justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-indigo-600">{{ update.percentage }}% Complete</p>
+                                            <div class="mt-1 prose prose-sm max-w-none text-gray-700">{{ update.description|linebreaks }}</div>
+                                        </div>
+                                        <div class="mt-2 text-sm text-gray-500 sm:mt-0 sm:ml-4 sm:text-right flex-shrink-0">
+                                            <p> {{ update.date }}</p>
+                                            <p>by {{ update.updated_by.get_full_name|default:update.updated_by.email }}</p>
+                                        </div>
+                                    </div>
+                                     {% with update.photos.all as progress_photos %}
+                                        {% if progress_photos %}
+                                            {# Simplified container for thumbnails #}
+                                            <div class="mt-3 flex flex-wrap gap-2">
+                                                {% for p_photo in progress_photos %}
+                                                    <button type="button" data-modal-target="imageModal" data-modal-toggle="imageModal" data-image-url="{{ p_photo.image.url }}" data-image-caption="{{ p_photo.caption|escapejs|default:'Progress photo' }}" class="modal-trigger-button relative w-7 h-7 bg-white rounded-md flex items-center justify-center text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary group cursor-pointer">
+                                                         <img src="{{ p_photo.image.url }}" alt="{{ p_photo.caption|default:'Progress photo' }}"
+                                                             class="absolute inset-0 w-full h-full object-cover rounded-md" aria-hidden="true">
+                                                         <span class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-200 rounded-md"></span>
+                                                          {% if p_photo.caption %}
+                                                            <span class="absolute bottom-0 left-0 right-0 p-1 text-xs text-white bg-black bg-opacity-70 rounded-b-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 truncate" title="{{ p_photo.caption }}">
+                                                                {{ p_photo.caption }}
+                                                            </span>
+                                                        {% endif %}
+                                                     </button>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                         <div class="text-center py-6 bg-gray-50 rounded-md border border-dashed border-gray-300">
+                            <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <p class="mt-2 text-sm font-medium text-gray-900">No progress updates yet</p>
+                            <p class="mt-1 text-sm text-gray-500">Check back later for updates.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Project Feedback Section -->
+            <div x-data="{ showFeedbackForm: false }" x-cloak class="mt-8 bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Public Feedback</h3>
+                    <button type="button" @click="showFeedbackForm = !showFeedbackForm" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" :d="showFeedbackForm ? 'M19.5 12h-15' : 'M12 4.5v15m7.5-7.5h-15'" />
+                        </svg>
+                        <span x-show="!showFeedbackForm">Leave Feedback</span>
+                        <span x-show="showFeedbackForm" style="display: none;">Hide Form</span>
+                    </button>
+                </div>
+                 <div x-show="showFeedbackForm" x-transition class="px-4 py-5 sm:p-6 bg-gray-50 border-t border-gray-200">
+                    <h4 class="text-base font-medium text-gray-900 mb-4">Submit Your Feedback</h4>
+                    <form method="post" action="{% url 'projects:project_feedback' project.slug %}" class="space-y-6 feedback-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="grid gap-y-6 gap-x-4 sm:grid-cols-6">
+                             <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+                                <input type="text" name="{{ feedback_form.name.name }}"
+                                       id="{{ feedback_form.name.id_for_label }}"
+                                       autocomplete="name"
+                                       class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if feedback_form.name.errors %}border-red-500{% endif %}" required>
+                                 {% if feedback_form.name.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.name.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500">{{ feedback_form.name.help_text }}</p>
+                            </div>
+                             <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input type="text" name="{{ feedback_form.phone.name }}"
+                                       id="{{ feedback_form.phone.id_for_label }}"
+                                       autocomplete="tel"
+                                       class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if feedback_form.phone.errors %}border-red-500{% endif %}">
+                                 {% if feedback_form.phone.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.phone.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500">{{ feedback_form.phone.help_text }}</p>
+                            </div>
+                             <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" name="{{ feedback_form.email.name }}"
+                                       id="{{ feedback_form.email.id_for_label }}"
+                                       autocomplete="email"
+                                       class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if feedback_form.email.errors %}border-red-500{% endif %}">
+                                {% if feedback_form.email.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.email.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500">{{ feedback_form.email.help_text }}</p>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.id_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">National ID Number <span class="text-red-500">*</span></label>
+                                <input type="text" name="{{ feedback_form.id_number.name }}"
+                                       id="{{ feedback_form.id_number.id_for_label }}"
+                                       inputmode="numeric"
+                                       class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if feedback_form.id_number.errors %}border-red-500{% endif %}" required>
+                                {% if feedback_form.id_number.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.id_number.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500">{{ feedback_form.id_number.help_text }}</p>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.sub_county.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Sub-County <span class="text-red-500">*</span></label>
+                                <select name="{{ feedback_form.sub_county.name }}"
+                                        id="{{ feedback_form.sub_county.id_for_label }}"
+                                        class="feedback-subcounty-select block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md {% if feedback_form.sub_county.errors %}border-red-500{% endif %}" required>
+                                    <option value="">---------</option>
+                                    {% for choice in feedback_form.sub_county.field.choices %}
+                                        {% if choice.0 %}
+                                            <option value="{{ choice.0 }}" {% if feedback_form.sub_county.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>{{ choice.1 }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                {% if feedback_form.sub_county.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.sub_county.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500">{{ feedback_form.sub_county.help_text }}</p>
+                            </div>
+                             <div class="sm:col-span-3">
+                                <label for="{{ feedback_form.ward.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Ward <span class="text-red-500">*</span></label>
+                                <select name="{{ feedback_form.ward.name }}"
+                                        id="{{ feedback_form.ward.id_for_label }}"
+                                        class="feedback-ward-select block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md {% if feedback_form.ward.errors %}border-red-500{% endif %}" required>
+                                    <option value="">---------</option>
+                                     {% if feedback_form.ward.value %}
+                                         {% for choice in feedback_form.ward.field.choices %}
+                                             {% if choice.0 %}
+                                                <option value="{{ choice.0 }}" {% if feedback_form.ward.value|stringformat:'s' == choice.0|stringformat:'s' %}selected{% endif %}>{{ choice.1 }}</option>
+                                             {% endif %}
+                                         {% endfor %}
+                                     {% endif %}
+                                </select>
+                                {% if feedback_form.ward.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.ward.errors|first }}</p>{% endif %}
+                            </div>
+
+                            <div class="sm:col-span-6">
+                                <label for="{{ feedback_form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Comment <span class="text-red-500">*</span></label>
+                                <textarea name="{{ feedback_form.comment.name }}"
+                                          id="{{ feedback_form.comment.id_for_label }}"
+                                          rows="3" class="block w-full shadow-sm focus:ring-primary focus:border-primary sm:text-sm border-gray-300 rounded-md {% if feedback_form.comment.errors %}border-red-500{% endif %}" required>{{ feedback_form.comment.value|default:"" }}</textarea>
+                                {% if feedback_form.comment.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.comment.errors|first }}</p>{% endif %}
+                                 <p class="mt-1 text-xs text-gray-500 italic">{{ feedback_form.comment.help_text }} Your personal details (Name, Phone, Email, ID) are kept private and used for analytics only. They will not be displayed publicly.</p>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rating <span class="text-red-500">*</span></label>
+                                 <fieldset class="mt-1">
+                                    <legend class="sr-only">Rating</legend>
+                                    <div class="space-y-2">
+                                         {% for choice in feedback_form.rating %}
+                                            {# Get color classes using the custom template tag #}
+                                            {% get_rating_classes choice.choice_label|slice:":1" as rating_classes %}
+                                            <div class="flex items-center">
+                                                 {# Render input manually to add dynamic classes #}
+                                                 <input type="radio" name="{{ choice.data.name }}"
+                                                        id="{{ choice.id_for_label }}"
+                                                        value="{{ choice.data.value }}"
+                                                        {% if choice.data.selected %}checked{% endif %}
+                                                        class="h-4 w-4 border-gray-300 {{ rating_classes.focus_ring }} {{ rating_classes.text }}">
+                                                 <label for="{{ choice.id_for_label }}" class="ml-3 block text-sm font-medium {{ rating_classes.text }}">
+                                                    {{ choice.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                     {% if feedback_form.rating.errors %}<p class="mt-1 text-sm text-red-600">{{ feedback_form.rating.errors|first }}</p>{% endif %}
+                                     <p class="mt-1 text-xs text-gray-500">{{ feedback_form.rating.help_text }}</p>
+                                </fieldset>
+                            </div>
+
+                            {# Add File Upload Field Here #}
+                            <div class="sm:col-span-3">
+                                <label for="id_attachments" class="block text-sm font-medium text-gray-700 mb-1">Attach Photos/Files (Optional)</label>
+                                <input type="file" name="attachments" id="id_attachments" multiple
+                                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                <p class="mt-1 text-xs text-gray-500">You can upload multiple relevant photos or documents.</p>
+                            </div>
+
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" @click="showFeedbackForm = false" class="mr-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Cancel</button>
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Submit Feedback</button>
+                        </div>
+                    </form>
+                </div>
+             {# END of x-show div #}
+            </div>
+             {# START of feedback list div (moved here) #}
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                 {% if feedback_list %}
+                    <h4 class="text-base font-medium text-gray-900 mb-4">Submitted Feedback</h4>
+                    <ul role="list" class="space-y-5">
+                         {% for feedback in feedback_list %}
+                            <li id="feedback-{{ feedback.id }}">
+                                {# Wrap content in a card-like div #}
+                                <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 sm:p-5">
+                                    <div class="flex space-x-3">
+                                        <!-- Avatar Placeholder -->
+                                        <div class="flex-shrink-0">
+                                            <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100">
+                                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            </span>
+                                        </div>
+                                        <!-- Content -->
+                                        <div class="min-w-0 flex-1">
+                                            <!-- Header: User Info, Date, Rating, Actions -->
+                                            <div class="flex justify-between items-start mb-1">
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">
+                                                        Member of {{ feedback.ward.name }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500" title="{{ feedback.created_at|date:'Y-m-d H:i:s' }}">
+                                                        {{ feedback.created_at|naturaltime }}
+                                                    </p>
+                                                </div>
+                                                <div class="flex-shrink-0 flex items-center space-x-3 ml-4">
+                                                    {# Rating Badge #}
+                                                    {% with rating=feedback.rating %}
+                                                        <span class="px-2 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full
+                                                            {% if rating == 5 %} bg-green-100 text-green-800
+                                                            {% elif rating == 4 %} bg-blue-100 text-blue-800
+                                                            {% elif rating == 3 %} bg-yellow-100 text-yellow-800
+                                                            {% elif rating == 2 %} bg-orange-100 text-orange-800
+                                                            {% elif rating == 1 %} bg-red-100 text-red-800
+                                                            {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                                            {{ feedback.get_rating_display }}
+                                                        </span>
+                                                    {% endwith %}
+                                                    {# Report/Flag Button Form #}
+                                                    <form method="post" action="." class="inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                                                        {% if user.is_authenticated and user.role != 'public' %}
+                                                            <input type="hidden" name="action" value="toggle_flag">
+                                                            <button type="submit" title="{% if feedback.flagged_inappropriate %}Unflag{% else %}Flag{% endif %} Inappropriate"
+                                                                    class="p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary {% if feedback.flagged_inappropriate %} bg-red-100 text-red-700 hover:bg-red-200 {% else %} bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 {% endif %}">
+                                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                                                                </svg>
+                                                                <span class="sr-only">{% if feedback.flagged_inappropriate %}Unflag{% else %}Flag{% endif %}</span>
+                                                            </button>
+                                                        {% elif user.is_authenticated %} {# Public but logged in can report #}
+                                                            <input type="hidden" name="action" value="toggle_report">
+                                                            <button type="submit" title="{% if feedback.reported_inappropriate %}Remove Report{% else %}Report as Inappropriate{% endif %}"
+                                                                    class="p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary {% if feedback.reported_inappropriate %} bg-yellow-100 text-yellow-700 hover:bg-yellow-200 {% else %} bg-gray-100 text-gray-500 hover:bg-yellow-100 hover:text-yellow-700 {% endif %}">
+                                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                                                                <span class="sr-only">{% if feedback.reported_inappropriate %}Un-report{% else %}Report{% endif %}</span>
+                                                            </button>
+                                                         {% endif %}
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <!-- Comment Body -->
+                                            <div class="mt-2 text-sm text-gray-700 prose max-w-none">
+                                                {{ feedback.comment|linebreaks }}
+                                            </div>
+
+                                            <!-- Feedback Attachments Section -->
+                                            {% if feedback.attachments.exists %}
+                                                <div class="mt-3 flex flex-wrap gap-2">
+                                                    {% for attachment in feedback.attachments.all %}
+                                                        {% if attachment.is_image %}
+                                                            <a href="{{ attachment.file.url }}" target="_blank" title="View attachment" class="group relative w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center text-sm font-medium uppercase text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                                                <img src="{{ attachment.file.url }}" alt="Feedback attachment thumbnail" class="absolute inset-0 w-full h-full object-cover rounded-md group-hover:opacity-75">
+                                                                <span class="sr-only">View attachment</span>
+                                                            </a>
+                                                        {% else %}
+                                                            {# Display link for non-image files #}
+                                                            <a href="{{ attachment.file.url }}" target="_blank" title="View attachment: {{ attachment.file.name }}" class="flex items-center text-xs text-primary hover:text-primary/80 hover:underline p-1 bg-gray-50 rounded border border-gray-200 max-w-[100px]">
+                                                                <svg class="w-4 h-4 mr-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>
+                                                                <span class="truncate">{{ attachment.file.name|truncatechars:11 }}</span> {# Display full filename #}
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <!-- Replies Section -->
+                                            {% if feedback.replies.exists %}
+                                                <div class="mt-4 pl-9 space-y-3"> {# Indent replies #}
+                                                     {% for reply in feedback.replies.all %}
+                                                        <div class="flex space-x-3">
+                                                             <!-- Reply Avatar Placeholder -->
+                                                             <div class="flex-shrink-0">
+                                                                 <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/10">
+                                                                     <svg class="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                                                 </span>
+                                                             </div>
+                                                             <!-- Reply Content -->
+                                                            <div class="min-w-0 flex-1 bg-gray-50 p-3 rounded-md border border-gray-200">
+                                                                <p class="text-xs font-medium text-gray-800">
+                                                                     Reply by {{ reply.user.get_full_name|default:reply.user.email }}
+                                                                     <span class="text-gray-500 font-normal" title="{{ reply.created_at|date:'Y-m-d H:i:s' }}">({{ reply.created_at|naturaltime }})</span>
+                                                                 </p>
+                                                                 <p class="text-sm text-gray-700 mt-1">{{ reply.reply_text|linebreaks }}</p>
+
+                                                                 <!-- Staff Reply Attachments Section -->
+                                                                 {% if reply.attachments.exists %}
+                                                                     <div class="mt-2 flex flex-wrap gap-2 border-t border-gray-200 pt-2">
+                                                                         {% for attachment in reply.attachments.all %}
+                                                                             {% if attachment.is_image %}
+                                                                                 <a href="{{ attachment.file.url }}" target="_blank" title="View attachment" class="group relative w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center text-sm font-medium uppercase text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                                                                     <img src="{{ attachment.file.url }}" alt="Staff reply attachment thumbnail" class="absolute inset-0 w-full h-full object-cover rounded-md group-hover:opacity-75">
+                                                                                     <span class="sr-only">View attachment</span>
+                                                                                 </a>
+                                                                             {% else %}
+                                                                                <a href="{{ attachment.file.url }}" target="_blank" title="View attachment: {{ attachment.file.name }}" class="flex items-center text-xs text-primary hover:text-primary/80 hover:underline p-1 bg-gray-50 rounded border border-gray-200 max-w-[100px]">
+                                                                                    <svg class="w-4 h-4 mr-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>
+                                                                                    <span class="truncate">{{ attachment.file.name|truncatechars:11 }}</span> {# Display full filename #}
+                                                                                </a>
+                                                                             {% endif %}
+                                                                         {% endfor %}
+                                                                     </div>
+                                                                 {% endif %}
+
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <!-- Reply Form (Staff Only) -->
+                                            {% if user.is_authenticated and user.role != 'public' %}
+                                                <div x-data="{ showReplyForm: false }" class="mt-4 pl-9"> {# Indent form #}
+                                                    <button type="button" @click="showReplyForm = !showReplyForm" class="mb-2 text-sm text-primary hover:text-primary/80 hover:underline inline-flex items-center">
+                                                        <svg class="-ml-0.5 mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
+                                                        <span x-show="!showReplyForm">Reply</span>
+                                                        <span x-show="showReplyForm" style="display: none;">Cancel Reply</span>
+                                                    </button>
+
+                                                    <form method="post" action="." x-show="showReplyForm" x-transition enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                                                        <input type="hidden" name="action" value="post_reply"> {# Explicit action #}
+                                                        {# Store feedback id in form instance if redisplaying with error #}
+                                                        {% with errored_form_feedback_id=staff_reply_form.instance.feedback_id|default:None %}
+                                                            {% if staff_reply_form.errors and errored_form_feedback_id == feedback.id %}
+                                                                {# If this form has errors for *this* feedback item, display it #}
+                                                                {% with current_reply_form=staff_reply_form feedback_id=feedback.id %}
+                                                                    {# Content from staff_reply_form_content.html #}
+                                                                    <div>
+                                                                        <label for="id_reply_text_{{ feedback_id }}" class="sr-only">Add your reply</label>
+                                                                        <textarea name="{{ current_reply_form.reply_text.name }}" rows="2"
+                                                                                id="id_reply_text_{{ feedback_id }}"
+                                                                                class="shadow-sm block w-full focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md {% if current_reply_form.reply_text.errors %}border-red-500{% endif %}"
+                                                                                placeholder="Write your reply...">{{ current_reply_form.reply_text.value|default:"" }}</textarea>
+                                                                        {% if current_reply_form.reply_text.errors %}
+                                                                            <p class="mt-1 text-sm text-red-600">{{ current_reply_form.reply_text.errors|first }}</p>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label for="id_reply_attachments_{{ feedback_id }}" class="block text-sm font-medium text-gray-700 mb-1">Attach Files (Optional)</label>
+                                                                        <input type="file" name="reply_attachments_{{ feedback_id }}" id="id_reply_attachments_{{ feedback_id }}" multiple
+                                                                            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                                                    </div>
+                                                                    {# End content from staff_reply_form_content.html #}
+                                                                {% endwith %}
+                                                            {% else %}
+                                                                {# Otherwise, display a clean form instance #}
+                                                                {% with current_reply_form=staff_reply_form feedback_id=feedback.id %}
+                                                                    {# Content from staff_reply_form_content.html #}
+                                                                    <div>
+                                                                        <label for="id_reply_text_{{ feedback_id }}" class="sr-only">Add your reply</label>
+                                                                        <textarea name="{{ current_reply_form.reply_text.name }}" rows="2"
+                                                                                id="id_reply_text_{{ feedback_id }}"
+                                                                                class="shadow-sm block w-full focus:ring-primary focus:border-primary sm:text-sm border border-gray-300 rounded-md"
+                                                                                placeholder="Write your reply..."></textarea>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label for="id_reply_attachments_{{ feedback_id }}" class="block text-sm font-medium text-gray-700 mb-1">Attach Files (Optional)</label>
+                                                                        <input type="file" name="reply_attachments_{{ feedback_id }}" id="id_reply_attachments_{{ feedback_id }}" multiple
+                                                                            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                                                    </div>
+                                                                    {# End content from staff_reply_form_content.html #}
+                                                                {% endwith %}
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                        <div class="mt-2 flex justify-end">
+                                                             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                                                 Post Reply
+                                                             </button>
+                                                         </div>
+                                                     </form>
+                                                 </div>
+                                            {% endif %}
+
+                                        </div> {# End min-w-0 flex-1 #}
+                                    </div> {# End flex space-x-3 #}
+                                </div> {# End bg-white shadow-sm border border-gray-200 rounded-lg p-4 sm:p-5 #}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-6">
+                        <svg class="mx-auto h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
+                        <p class="mt-2 text-sm font-medium text-gray-900">No feedback submitted yet</p>
+                        <p class="mt-1 text-sm text-gray-500">Be the first to share your thoughts using the button above.</p>
+                    </div>
+                {% endif %}
+            </div>
+             {# END of feedback list div #}
+
+        </div>
+
+        <!-- Right Column: Financial, Map, Photos -->
+        <div class="lg:col-span-1 space-y-6">
+
+             <!-- Financial Information Card -->
+             <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Financial Information</h3>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:p-6 space-y-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium text-gray-500">Budget Allocation:</span>
+                        <span class="font-medium text-gray-900">KES {{ project.budget_allocation|intcomma }}</span>
+                    </div>
+                     <div class="flex justify-between text-sm">
+                        <span class="font-medium text-gray-500">Expenditure:</span>
+                        <span class="font-medium text-gray-900">KES {{ project.expenditure|intcomma }}</span>
+                    </div>
+                     <div class="flex justify-between text-sm">
+                        <span class="font-medium text-gray-500">Budget Utilization:</span>
+                        <span class="font-medium text-gray-900">{{ project.budget_utilization|floatformat:1 }}%</span>
+                    </div>
+                     <div class="w-full bg-gray-200 rounded-full h-2.5">
+                         {% with percentage=project.budget_utilization|default:0 %}
+                            <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ percentage }}%"></div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+             <!-- Location Map Card -->
+             {% if project.google_map_location %}
+                <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Location Map</h3>
+                    </div>
+                    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                         <a href="{{ project.google_map_location }}" target="_blank"
+                           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full justify-center">
+                             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            View on Google Maps
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Project Photos Card -->
+             {% if photos %}
+                 <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+                    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Project Photos</h3>
+                         {% if user.is_authenticated and user.role != 'public' %}
+                             {% if user.role == 'executive' or user.department == project.department %}
+                                 <a href="{% url 'projects:project_manage_photos' project.slug %}"
+                                    class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                    Manage
+                                </a>
+                            {% endif %}
+                         {% endif %}
+                    </div>
+                     <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                        <ul role="list" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-2 xl:gap-x-8">
+                             {% for photo in photos %}
+                                 <li class="relative">
+                                    <button type="button"
+                                            data-modal-target="imageModal"
+                                            data-modal-toggle="imageModal"
+                                            data-image-url="{{ photo.image.url }}"
+                                            data-image-caption="{{ photo.caption|escapejs|default:'Project photo' }}"
+                                            class="modal-trigger-button group block w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-primary overflow-hidden">
+                                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Project photo' }}" class="object-cover pointer-events-none group-hover:opacity-75">
+                                        <span class="absolute inset-0 focus:outline-none" aria-hidden="true">
+                                            <span class="sr-only">View details for {{ photo.caption|default:'Project photo' }}</span>
+                                        </span>
+                                    </button>
+                                     {% if photo.caption %}
+                                        <p class="mt-2 block text-sm font-medium text-gray-900 truncate pointer-events-none">{{ photo.caption }}</p>
+                                     {% endif %}
+                                 </li>
+                             {% endfor %}
+                        </ul>
+                    </div>
+                 </div>
+             {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Flowbite Image Modal -->
+<div id="imageModal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full">
+    <div class="relative p-4 w-full max-w-4xl h-full md:h-auto">
+        <!-- Modal content -->
+        <div class="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+            <!-- Modal header -->
+            <div class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                <h3 id="modalImageCaption" class="text-lg font-semibold text-gray-900 dark:text-white">
+                    Image Caption
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="imageModal">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="flex justify-center items-center max-h-[80vh] mb-4">
+                 <img id="modalImage" src="" alt="Full size progress photo" class="max-w-full max-h-[75vh] object-contain">
+            </div>
+             <!-- Modal footer -->
+            <div class="flex justify-end items-center pt-4 border-t dark:border-gray-600 space-x-3">
+                <a id="modalExpandLink" href="#" target="_blank"
+                   class="text-gray-700 inline-flex items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                     <svg class="mr-1 -ml-1 w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    Expand
+                 </a>
+                 <a id="modalDownloadLink" href="#" download
+                   class="text-white inline-flex items-center bg-primary hover:bg-primary/80 focus:ring-4 focus:outline-none focus:ring-primary font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary/80 dark:focus:ring-primary">
+                   <svg class="mr-1 -ml-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg>
+                    Download
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{# Flowbite CSS & JS (Ideally move to base.html) #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script>
+
+<!-- Script to populate Flowbite modal -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modalImage = document.getElementById('modalImage');
+    const modalCaption = document.getElementById('modalImageCaption');
+    const modalDownloadLink = document.getElementById('modalDownloadLink');
+    const modalExpandLink = document.getElementById('modalExpandLink');
+
+    // Add event listeners to all trigger buttons
+    document.querySelectorAll('.modal-trigger-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const imageUrl = button.dataset.imageUrl;
+            const imageCaption = button.dataset.imageCaption;
+
+            // Set the content of the modal elements
+            if (modalImage) {
+                modalImage.src = imageUrl;
+            }
+            if (modalCaption) {
+                modalCaption.textContent = imageCaption || 'Image'; // Default caption
+            }
+            if (modalDownloadLink) {
+                modalDownloadLink.href = imageUrl;
+            }
+            if (modalExpandLink) {
+                modalExpandLink.href = imageUrl;
+            }
+        });
+    });
+
+    // --- Dependent Dropdown for Feedback Form --- //
+    const feedbackSubcountySelect = document.querySelector('.feedback-subcounty-select');
+    const feedbackWardSelect = document.querySelector('.feedback-ward-select');
+
+    function loadFeedbackWards(subcountyId) {
+        const url = `/api/wards/?subcounty=${subcountyId}`;
+        const initialValue = feedbackWardSelect.dataset.initial || ''; // Get initial value if set
+        feedbackWardSelect.innerHTML = '<option value="">Select Ward</option>'; // Reset
+        feedbackWardSelect.disabled = true;
+
+        if (!subcountyId) {
+             feedbackWardSelect.innerHTML = '<option value="">Select Sub-County First</option>';
+             feedbackWardSelect.disabled = false;
+             return;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                     data.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.id;
+                        option.textContent = ward.name;
+                         // Reselect if matches initial value (for form redisplay with errors)
+                         if (ward.id.toString() === initialValue) {
+                            option.selected = true;
+                        }
+                        feedbackWardSelect.appendChild(option);
+                    });
+                } else {
+                    feedbackWardSelect.innerHTML = '<option value="">No wards found</option>';
+                }
+                feedbackWardSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading feedback wards:', error);
+                 feedbackWardSelect.innerHTML = '<option value="">Error loading wards</option>';
+                 feedbackWardSelect.disabled = false;
+            });
+    }
+
+    if (feedbackSubcountySelect) {
+         // Store initial value in case of form error redisplay
+         if (feedbackWardSelect.value) {
+            feedbackWardSelect.dataset.initial = feedbackWardSelect.value;
+         }
+
+         // Initial load if subcounty is already selected (e.g., on form error redisplay)
+         if (feedbackSubcountySelect.value) {
+            loadFeedbackWards(feedbackSubcountySelect.value);
+         }
+
+         feedbackSubcountySelect.addEventListener('change', function() {
+            feedbackWardSelect.dataset.initial = ''; // Clear initial value on change
+            loadFeedbackWards(this.value);
+        });
+    }
+    // --- End Dependent Dropdown --- //
+
+});
+</script>
+{% endblock extra_js %}
+
+{% endblock %}

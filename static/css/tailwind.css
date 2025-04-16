@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom color variables matching the current theme */
+:root {
+    --primary-color: #1a5653;
+    --secondary-color: #f6c416;
+    --accent-color: #77b81e;
+    --light-bg: #f8f9fa;
+    --dark-bg: #343a40;
+}
+
+/* Custom component classes */
+@layer components {
+    .btn-primary {
+        @apply bg-[#1a5653] text-white font-medium py-2 px-4 border border-[#1a5653] rounded-md hover:bg-[#16433f];
+    }
+    
+    .btn-secondary {
+        @apply bg-[#f6c416] text-gray-800 font-medium py-2 px-4 border border-[#f6c416] rounded-md hover:bg-[#ddb115];
+    }
+    
+    .btn-accent {
+        @apply bg-[#77b81e] text-white font-medium py-2 px-4 border border-[#77b81e] rounded-md hover:bg-[#68a01a];
+    }
+    
+    .card-header {
+        @apply bg-[#1a5653] text-white p-3 rounded-t-md;
+    }
+    
+    .navbar-custom {
+        @apply bg-[#1a5653];
+    }
+    
+    /* Alert styles */
+    .alert {
+        @apply p-3 mb-3 rounded-md;
+    }
+    
+    .alert-success {
+        @apply bg-green-100 border border-green-400 text-green-700;
+    }
+    
+    .alert-warning {
+        @apply bg-yellow-100 border border-yellow-400 text-yellow-700;
+    }
+    
+    .alert-danger {
+        @apply bg-red-100 border border-red-400 text-red-700;
+    }
+    
+    .alert-info {
+        @apply bg-blue-100 border border-blue-400 text-blue-700;
+    }
+} 

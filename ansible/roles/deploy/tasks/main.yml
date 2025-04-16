@@ -1,0 +1,57 @@
+- name: Update application code
+  become_user: "{{ app_user }}"
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ app_src_dir }}"
+    version: "{{ git_branch }}"
+    accept_hostkey: yes
+    key_file: "{{ app_home }}/.ssh/id_rsa"
+    force: yes
+  register: git_status
+
+- name: Install pip packages
+  become_user: "{{ app_user }}"
+  pip:
+    requirements: "{{ app_src_dir }}/requirements.txt"
+    virtualenv: "{{ app_env_dir }}"
+  when: git_status.changed
+
+- name: Run Django migrations
+  become_user: "{{ app_user }}"
+  community.general.django_manage:
+    command: migrate
+    app_path: "{{ app_src_dir }}"
+    virtualenv: "{{ app_env_dir }}"
+    settings: "{{ django_settings_module }}"
+  when: git_status.changed
+
+- name: Collect static files
+  become_user: "{{ app_user }}"
+  community.general.django_manage:
+    command: "collectstatic --noinput"
+    app_path: "{{ app_src_dir }}"
+    virtualenv: "{{ app_env_dir }}"
+    settings: "{{ django_settings_module }}"
+  when: git_status.changed
+
+- name: Ensure Gunicorn exists in virtualenv
+  stat:
+    path: "{{ app_env_dir }}/bin/gunicorn"
+  register: gunicorn_check
+
+- name: Fail if Gunicorn is not found in virtualenv
+  fail:
+    msg: "Gunicorn executable not found in virtualenv at {{ app_env_dir }}/bin/gunicorn. Please ensure it's installed."
+  when: not gunicorn_check.stat.exists
+
+- name: Restart Gunicorn service
+  systemd:
+    name: "{{ app_name }}"
+    state: restarted
+  when: git_status.changed
+
+- name: Restart Nginx service
+  systemd:
+    name: nginx
+    state: restarted
+  when: git_status.changed
